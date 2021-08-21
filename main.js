@@ -20,11 +20,11 @@ class Room {
 const bookedRoom = []
 let avalRoom = []
 const allRoom = []
-const keyCard = []
+const keycard = []
 
 function main() {
-  const filename = 'input.txt'
-  const commands = getCommandsFromFileName(filename)
+  const fileName = 'input.txt'
+  const commands = getCommandsFromFileName(fileName)
 
   commands.forEach(command => {
     //find available room
@@ -46,20 +46,20 @@ function main() {
         noKeyCard = floor * roomPerFloor
 
         for (let i = noKeyCard; i >= 1; i--) {
-          keyCard.push(i)
+          keycard.push(i)
         }
 
         //set all room num
         for (let f = 1; f <= floor; f++) {
           for (let r = 1; r <= roomPerFloor; r++) {
             if (r.toString()[1] === undefined) { //f01-f09
-              temp_roomnum = f.toString() + '0' + r.toString()
+              tempRoomNum = f.toString() + '0' + r.toString()
             }
             else { //f10-f99
-              temp_roomnum = f.toString() + r.toString()
+              tempRoomNum = f.toString() + r.toString()
             }
 
-            allRoom.push(Number(temp_roomnum))
+            allRoom.push(Number(tempRoomNum))
           }
         }
 
@@ -70,66 +70,66 @@ function main() {
 
       case 'book':
         //book 203 Thor 32
-        const [b_room, b_guest, b_age] = command.params
+        const [bRoom, bGuest, bAge] = command.params
 
         //console.log(bookedRoomNum.length)
         if (bookedRoomNum.length == allRoom.length) {
           return console.log('Hotel is fully booked.')
         }
 
-        filterRoom = findByRoomNum(b_room)
+        filterRoom = findByRoomNum(bRoom)
         if (filterRoom == 0) { //room is available -> book
           //book
-          keyNum = keyCard.pop()
-          bookedRoom.push(new Room(b_room, Number(b_room.toString()[0]), keyNum, b_guest, b_age))
+          keyNum = keycard.pop()
+          bookedRoom.push(new Room(bRoom, Number(bRoom.toString()[0]), keyNum, bGuest, bAge))
 
-          console.log(`Room ${b_room} is booked by ${b_guest} with keycard number ${keyNum}.`);
+          console.log(`Room ${bRoom} is booked by ${bGuest} with keycard number ${keyNum}.`);
         }
         else {         
-          console.log(`Cannot book room ${b_room} for ${b_guest}, The room is currently booked by ${filterRoom.guest}.`)
+          console.log(`Cannot book room ${bRoom} for ${bGuest}, The room is currently booked by ${filterRoom.guest}.`)
         }
         return 
 
       case 'book_by_floor':
         //book_by_floor 1 TonyStark 48
-        const [bbf_floor, bbf_guest, bbf_age] = command.params
+        const [bbfFloor, bbfGuest, bbfAge] = command.params
 
-        if (!isRoomBookedByFloor(bbf_floor)) { //all room on that floor are available -> book all     
+        if (!isRoomBookedByFloor(bbfFloor)) { //all room on that floor are available -> book all     
           //book
           //create array of all roomNum on that floor
-          const roomArr = avalRoom.filter(elem => elem.toString()[0] == bbf_floor)
+          const roomArr = avalRoom.filter(elem => elem.toString()[0] == bbfFloor)
           //create array of all keycardNum
           const keycardArr = [];
 
           for (let x = 0; x < roomArr.length; x++) {
-            keycardArr.push(keyCard.pop())
+            keycardArr.push(keycard.pop())
           }
 
           //create obj
           for (let x = 0; x < roomArr.length; x++) {
-            bookedRoom.push(new Room(roomArr[x], bbf_floor, keycardArr[x], bbf_guest, bbf_age))
+            bookedRoom.push(new Room(roomArr[x], bbfFloor, keycardArr[x], bbfGuest, bbfAge))
           }
 
           console.log(`Room ${roomArr.join(', ')} are booked with keycard number ${keycardArr.join(', ')}`)
         }
         else {                         
-          console.log(`Cannot book floor ${bbf_floor} for ${bbf_guest}.`)
+          console.log(`Cannot book floor ${bbfFloor} for ${bbfGuest}.`)
         }
         return
 
       case 'checkout':
         //checkout 4 TonyStark
-        const [co_keycardNumber, co_guest] = command.params
+        const [coKeycardNumber, coGuest] = command.params
 
-        filterRoom = findByKeyNum(co_keycardNumber)
+        filterRoom = findByKeyNum(coKeycardNumber)
         if (filterRoom != 0) { //there is the room that booked with this keycard number
           //console.log(`ftr = ${filterRoom.guest.length}, co = ${co_guest.trim().length}`)
-          if (filterRoom.guest == co_guest) { //name match with keyNum
+          if (filterRoom.guest == coGuest) { //name match with keyNum
             //checkout
             //delete that room by index
             bookedRoom.splice(bookedRoom.indexOf(filterRoom),1)
             //push keycard back
-            keyCard.push(filterRoom.keycardNumber)
+            keycard.push(filterRoom.keycardNumber)
 
             console.log(`Room ${filterRoom.room} is checkout.`)
           }
@@ -144,18 +144,18 @@ function main() {
 
       case 'checkout_guest_by_floor':
         //checkout_guest_by_floor 1
-        const [cobf_floor] = command.params
+        const [cobfFloor] = command.params
 
-        if (isRoomBookedByFloor(cobf_floor)) { //there is some room on that floor was booked  
+        if (isRoomBookedByFloor(cobfFloor)) { //there is some room on that floor was booked  
           //checkout that room
           //create array of all booked roomNum on that floor
-          const roomArr = bookedRoomNum.filter(elem => elem.toString()[0] == cobf_floor)
+          const roomArr = bookedRoomNum.filter(elem => elem.toString()[0] == cobfFloor)
 
           for (let x = 0; x < roomArr.length; x++) {
             //find index
             indexRoom = bookedRoom.indexOf(findByRoomNum(roomArr[x]))
             //push keycard back
-            keyCard.push(bookedRoom[indexRoom].keycardNumber)
+            keycard.push(bookedRoom[indexRoom].keycardNumber)
             //delete room
             bookedRoom.splice(indexRoom, 1)
           }
@@ -163,7 +163,7 @@ function main() {
           console.log(`Room ${roomArr.join(', ')} are checkout.`)
         }
         else {                         
-          console.log(`No room on floor ${cobf_floor} was booked.`)
+          console.log(`No room on floor ${cobfFloor} was booked.`)
         }
         return
 
@@ -182,11 +182,11 @@ function main() {
 
       case 'list_guest_by_age':
         //list_guest_by_age < 18
-        const [gba_op, gba_numAge] = command.params
+        const [gbaOp, gbaNumAge] = command.params
         ageGuest = [];
 
         bookedRoom.forEach(eachRoom => {
-          if (eval(eachRoom.age+gba_op+gba_numAge)) {
+          if (eval(eachRoom.age+gbaOp+gbaNumAge)) {
             if (!ageGuest.find(elem => elem == eachRoom.guest)) ageGuest.push(eachRoom.guest)
           }
         })
@@ -195,20 +195,20 @@ function main() {
 
       case 'list_guest_by_floor':
         //list_guest_by_floor 2
-        const [gbf_floor] = command.params
+        const [gbfFloor] = command.params
         floorGuest = [];
 
         bookedRoom.forEach(eachRoom => {
-          if (eachRoom.floor == gbf_floor) if (!floorGuest.find(elem => elem == eachRoom.guest)) floorGuest.push(eachRoom.guest)
+          if (eachRoom.floor == gbfFloor) if (!floorGuest.find(elem => elem == eachRoom.guest)) floorGuest.push(eachRoom.guest)
         })
 
         return console.log(floorGuest.join(', '))
 
       case 'get_guest_in_room':
         //get_guest_in_room 203
-        const [gir_room] = command.params
+        const [girRoom] = command.params
 
-        return console.log(findByRoomNum(gir_room).guest)
+        return console.log(findByRoomNum(girRoom).guest)
       
       default:
         return console.log('Invalid Command')
