@@ -8,8 +8,8 @@ class Command {
 }
 
 class Room {
-  constructor(room, floor, keycardNumber, guest, age) {
-    this.room = room;
+  constructor(roomNumber, floor, keycardNumber, guest, age) {
+    this.roomNumber = roomNumber;
     this.floor = floor;
     this.keycardNumber = keycardNumber;
     this.guest = guest;
@@ -17,10 +17,10 @@ class Room {
   }
 }
 
-const bookedRoom = [];
-let avalRoom = [];
-const allRoom = [];
-const keycard = [];
+const bookedRooms = [];
+let availableRooms = [];
+const allRooms = [];
+const keycards = [];
 
 function main() {
   const fileName = 'input.txt';
@@ -28,12 +28,12 @@ function main() {
 
   commands.forEach(command => {
     //find available room
-    const bookedRoomNum = [];
+    const bookedRoomNumbers = [];
 
-    bookedRoom.forEach(eachRoom => {
-      bookedRoomNum.push(eachRoom.room);
+    bookedRooms.forEach(room => {
+      bookedRoomNumbers.push(room.roomNumber);
     });
-    avalRoom = allRoom.filter(room => !bookedRoomNum.includes(room));
+    availableRooms = allRooms.filter(room => !bookedRoomNumbers.includes(room));
 
     switch (command.name) {
       case 'create_hotel': {
@@ -43,23 +43,23 @@ function main() {
         if (roomPerFloor > 99) return console.log('Can not create hotel with 100 or more rooms per floor');
 
         //set all possible keycard number DESC
-        noKeyCard = floor * roomPerFloor;
+        numberOfKeycard = floor * roomPerFloor;
 
-        for (let i = noKeyCard; i >= 1; i--) {
-          keycard.push(i);
+        for (let count = numberOfKeycard; count >= 1; count--) {
+          keycards.push(count);
         }
 
         //set all room num
-        for (let f = 1; f <= floor; f++) {
-          for (let r = 1; r <= roomPerFloor; r++) {
-            if (r.toString()[1] === undefined) { //f01-f09
-              tempRoomNum = f.toString() + '0' + r.toString();
+        for (let floorCount = 1; floorCount <= floor; floorCount++) {
+          for (let roomCount = 1; roomCount <= roomPerFloor; roomCount++) {
+            if (roomCount.toString()[1] === undefined) { //f01-f09
+              roomNumber = floorCount.toString() + '0' + roomCount.toString();
             }
             else { //f10-f99
-              tempRoomNum = f.toString() + r.toString();
+              roomNumber = floorCount.toString() + roomCount.toString();
             }
 
-            allRoom.push(Number(tempRoomNum));
+            allRooms.push(Number(roomNumber));
           }
         }
 
@@ -71,73 +71,73 @@ function main() {
 
       case 'book': {
         //book 203 Thor 32
-        const [bRoom, bGuest, bAge] = command.params;
+        const [roomNumber, guest, age] = command.params;
 
-        //console.log(bookedRoomNum.length)
-        if (bookedRoomNum.length === allRoom.length) {
+        //console.log(bookedRoomNumbers.length)
+        if (bookedRoomNumbers.length === allRooms.length) {
           return console.log('Hotel is fully booked.');
         }
 
-        filterRoom = findByRoomNum(bRoom);
-        if (filterRoom === 0) { //room is available -> book
+        filteredRoom = findRoomByRoomNumber(roomNumber);
+        if (filteredRoom === 0) { //room is available -> book
           //book
-          keyNum = keycard.pop();
-          bookedRoom.push(new Room(bRoom, Number(bRoom.toString()[0]), keyNum, bGuest, bAge));
+          keycardNumber = keycards.pop();
+          bookedRooms.push(new Room(roomNumber, Number(roomNumber.toString()[0]), keycardNumber, guest, age));
 
-          console.log(`Room ${bRoom} is booked by ${bGuest} with keycard number ${keyNum}.`);
+          console.log(`Room ${roomNumber} is booked by ${guest} with keycard number ${keycardNumber}.`);
         }
         else {         
-          console.log(`Cannot book room ${bRoom} for ${bGuest}, The room is currently booked by ${filterRoom.guest}.`);
+          console.log(`Cannot book room ${roomNumber} for ${guest}, The room is currently booked by ${filteredRoom.guest}.`);
         }
         break;
       }
 
       case 'book_by_floor': {
         //book_by_floor 1 TonyStark 48
-        const [bbfFloor, bbfGuest, bbfAge] = command.params;
+        const [floor, guest, age] = command.params;
 
-        if (!isRoomBookedByFloor(bbfFloor)) { //all room on that floor are available -> book all     
+        if (!isRoomBookedByFloor(floor)) { //all room on that floor are available -> book all     
           //book
-          //create array of all roomNum on that floor
-          const roomArr = avalRoom.filter(elem => elem.toString()[0] == bbfFloor);
-          //create array of all keycardNum
-          const keycardArr = [];
+          //create array of all roomNumbers on that floor
+          const roomsOnFloor = availableRooms.filter(roomNumber => roomNumber.toString()[0] == floor);
+          //create array of all keycardNumbers
+          const keycardNumbersOnFloor = [];
 
-          for (let x = 0; x < roomArr.length; x++) {
-            keycardArr.push(keycard.pop());
+          for (let roomCount = 0; roomCount < roomsOnFloor.length; roomCount++) {
+            keycardNumbersOnFloor.push(keycards.pop());
           }
 
           //create obj
-          for (let x = 0; x < roomArr.length; x++) {
-            bookedRoom.push(new Room(roomArr[x], bbfFloor, keycardArr[x], bbfGuest, bbfAge));
+          for (let roomCount = 0; roomCount < roomsOnFloor.length; roomCount++) {
+            bookedRooms.push(new Room(roomsOnFloor[roomCount], floor, keycardNumbersOnFloor[roomCount], guest, age));
           }
 
-          console.log(`Room ${roomArr.join(', ')} are booked with keycard number ${keycardArr.join(', ')}`);
+          console.log(`Room ${roomsOnFloor.join(', ')} are booked with keycard number ${keycardNumbersOnFloor.join(', ')}`);
         }
         else {                         
-          console.log(`Cannot book floor ${bbfFloor} for ${bbfGuest}.`);
+          console.log(`Cannot book floor ${floor} for ${guest}.`);
         }
         break;
       }
 
       case 'checkout': {
         //checkout 4 TonyStark
-        const [coKeycardNumber, coGuest] = command.params;
+        const [keycardNumber, guest] = command.params;
 
-        filterRoom = findByKeyNum(coKeycardNumber);
-        if (filterRoom != 0) { //there is the room that booked with this keycard number
-          //console.log(`ftr = ${filterRoom.guest.length}, co = ${co_guest.trim().length}`)
-          if (filterRoom.guest === coGuest) { //name match with keyNum
+        filteredRoom = findRoomByKeycardNumber(keycardNumber);
+        if (filteredRoom != 0) { //there is the room that booked with this keycard number
+          //console.log(`ftr = ${filteredRoom.guest.length}, co = ${co_guest.trim().length}`)
+          if (filteredRoom.guest === guest) { //name match with keycardNumber
             //checkout
             //delete that room by index
-            bookedRoom.splice(bookedRoom.indexOf(filterRoom),1);
+            bookedRooms.splice(bookedRooms.indexOf(filteredRoom),1);
             //push keycard back
-            keycard.push(filterRoom.keycardNumber);
+            keycards.push(filteredRoom.keycardNumber);
 
-            console.log(`Room ${filterRoom.room} is checkout.`);
+            console.log(`Room ${filteredRoom.roomNumber} is checkout.`);
           }
           else {
-            console.log(`Only ${filterRoom.guest} can checkout with keycard number ${filterRoom.keycardNumber}.`);
+            console.log(`Only ${filteredRoom.guest} can checkout with keycard number ${filteredRoom.keycardNumber}.`);
           }
         }
         else {
@@ -148,80 +148,80 @@ function main() {
 
       case 'checkout_guest_by_floor': {
         //checkout_guest_by_floor 1
-        const [cobfFloor] = command.params;
+        const [floor] = command.params;
 
-        if (isRoomBookedByFloor(cobfFloor)) { //there is some room on that floor was booked  
+        if (isRoomBookedByFloor(floor)) { //there is some room on that floor was booked  
           //checkout that room
           //create array of all booked roomNum on that floor
-          const roomArr = bookedRoomNum.filter(elem => elem.toString()[0] == cobfFloor);
+          const roomsOnFloor = bookedRoomNumbers.filter(roomNumber => roomNumber.toString()[0] == floor);
 
-          for (let x = 0; x < roomArr.length; x++) {
+          for (let roomCount = 0; roomCount < roomsOnFloor.length; roomCount++) {
             //find index
-            indexRoom = bookedRoom.indexOf(findByRoomNum(roomArr[x]));
+            indexRoom = bookedRooms.indexOf(findRoomByRoomNumber(roomsOnFloor[roomCount]));
             //push keycard back
-            keycard.push(bookedRoom[indexRoom].keycardNumber);
+            keycards.push(bookedRooms[indexRoom].keycardNumber);
             //delete room
-            bookedRoom.splice(indexRoom, 1);
+            bookedRooms.splice(indexRoom, 1);
           }
 
-          console.log(`Room ${roomArr.join(', ')} are checkout.`);
+          console.log(`Room ${roomsOnFloor.join(', ')} are checkout.`);
         }
         else {                         
-          console.log(`No room on floor ${cobfFloor} was booked.`);
+          console.log(`No room on floor ${floor} was booked.`);
         }
         break;
       }
 
       case 'list_available_rooms': {
-        console.log(avalRoom.join(', '));
+        console.log(availableRooms.join(', '));
         break;
       }
 
       case 'list_guest': {
         //list_guest
-        allGuest = [];
+        allGuests = [];
 
-        bookedRoom.forEach(eachRoom => {
-          if (!allGuest.find(elem => elem === eachRoom.guest)) allGuest.push(eachRoom.guest);
+        bookedRooms.forEach(room => {
+          if (!allGuests.find(guest => guest === room.guest)) allGuests.push(room.guest);
         });
 
-        console.log(allGuest.join(', '));
+        console.log(allGuests.join(', '));
         break;
       }
 
       case 'list_guest_by_age': {
         //list_guest_by_age < 18
-        const [gbaOp, gbaNumAge] = command.params;
-        ageGuest = [];
+        const [operation, age] = command.params;
+        guestsByAge = [];
 
-        bookedRoom.forEach(eachRoom => {
-          if (eval(eachRoom.age+gbaOp+gbaNumAge)) {
-            if (!ageGuest.find(elem => elem === eachRoom.guest)) ageGuest.push(eachRoom.guest);
+        bookedRooms.forEach(room => {
+          if (eval(room.age+operation+age)) {
+            if (!guestsByAge.find(guest => guest === room.guest)) guestsByAge.push(room.guest);
           }
         })
 
-        console.log(ageGuest.join(', '));
+        console.log(guestsByAge.join(', '));
         break;
       }
 
       case 'list_guest_by_floor': {
         //list_guest_by_floor 2
-        const [gbfFloor] = command.params;
-        floorGuest = [];
+        const [floor] = command.params;
+        guestsByFloor = [];
 
-        bookedRoom.forEach(eachRoom => {
-          if (eachRoom.floor === gbfFloor) if (!floorGuest.find(elem => elem === eachRoom.guest)) floorGuest.push(eachRoom.guest);
+        bookedRooms.forEach(room => {
+          if (room.floor === floor) if (!guestsByFloor.find(guest => guest === room.guest)) guestsByFloor.push(room.guest);
         });
 
-        console.log(floorGuest.join(', '));
+        console.log(guestsByFloor.join(', '));
         break;
       }
 
       case 'get_guest_in_room': {
         //get_guest_in_room 203
-        const [girRoom] = command.params;
+        const [room] = command.params;
 
-        console.log(findByRoomNum(girRoom).guest);
+        console.log(findRoomByRoomNumber(room).guest);
         break;
       }
       
@@ -237,29 +237,29 @@ function main() {
 function isRoomBookedByFloor(floor) {
   result = false;
 
-  bookedRoom.forEach(eachRoom => eachRoom.floor === floor ? result = true : '');
+  bookedRooms.forEach(room => room.floor === floor ? result = true : '');
 
   return result;
 }
 
-function findByKeyNum(key) {
-  filterRoom = 0;
+function findRoomByKeycardNumber(keycardNumber) {
+  filteredRoom = 0;
 
-  bookedRoom.forEach(eachRoom => {
-    if (eachRoom.keycardNumber === key) filterRoom = eachRoom;
+  bookedRooms.forEach(room => {
+    if (room.keycardNumber === keycardNumber) filteredRoom = room;
   });
 
-  return filterRoom;
+  return filteredRoom;
 }
 
-function findByRoomNum(roomnum) {
-  filterRoom = 0;
+function findRoomByRoomNumber(roomNumber) {
+  filteredRoom = 0;
 
-  bookedRoom.forEach(eachRoom => {
-    if (eachRoom.room === roomnum) filterRoom = eachRoom;
+  bookedRooms.forEach(room => {
+    if (room.roomNumber === roomNumber) filteredRoom = room;
   });
 
-  return filterRoom;
+  return filteredRoom;
 }
 
 
