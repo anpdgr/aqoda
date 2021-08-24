@@ -181,12 +181,7 @@ function main() {
 
       case "list_guest": {
         //list_guest
-        allGuests = [];
-
-        bookedRooms.forEach((room) => {
-          if (!allGuests.find((guest) => guest === room.guest))
-            allGuests.push(room.guest);
-        });
+        const allGuests = getAllGuests();
 
         console.log(allGuests.join(", "));
         break;
@@ -397,6 +392,17 @@ function checkoutGuestByFloor(floor) {
   checkoutRoomByFloor(roomsOnFloor);
 
   console.log(`Room ${roomsOnFloor.join(", ")} are checkout.`);
+}
+
+function getAllGuests() {
+  const allGuests = [];
+
+  bookedRooms.forEach((room) => {
+    if (!allGuests.find((guest) => guest === room.guest))
+      allGuests.push(room.guest);
+  });
+
+  return allGuests;
 }
 
 function isRoomBookedByFloor(floor) {
