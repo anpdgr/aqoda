@@ -10,7 +10,6 @@ class RoomIsAlreadyBookedError extends Error {
     this.keycardNumber = keycardNumber
   }
 }
-
 class RoomFloorIsAlreadyBookedError extends Error {
   constructor(floor, guest) {
     super()
@@ -18,6 +17,9 @@ class RoomFloorIsAlreadyBookedError extends Error {
     this.guest = guest
   }
 }
+class GuestNotMatchKeycardNumberError extends Error {}
+class CheckoutAvailableRoomError extends Error {}
+
 
 class Command {
   constructor(name, params) {
@@ -129,28 +131,25 @@ function main() {
       case "checkout": {
         //checkout 4 TonyStark
         const [keycardNumber, guest] = command.params
-
-        filteredRoom = findRoomByKeycardNumber(keycardNumber)
-        if (filteredRoom != 0) {
-          //there is the room that booked with this keycard number
-          //console.log(`ftr = ${filteredRoom.guest.length}, co = ${co_guest.trim().length}`)
-          if (filteredRoom.guest === guest) {
-            //name match with keycardNumber
-            //checkout
-            //delete that room by index
-            bookedRooms.splice(bookedRooms.indexOf(filteredRoom), 1)
-            //push keycard back
-            keycards.push(filteredRoom.keycardNumber)
-
-            console.log(`Room ${filteredRoom.roomNumber} is checkout.`)
-          } else {
-            console.log(
-              `Only ${filteredRoom.guest} can checkout with keycard number ${filteredRoom.keycardNumber}.`
-            )
+        try {
+          checkout(keycardNumber, guest);
+        } catch(err) {
+          switch (true) {
+            case err instanceof GuestNotMatchKeycardNumberError: {
+              console.log(
+                `Only ${guest} can checkout with keycard number ${keycardNumber}.`
+              )
+              break
+            }
+            case err instanceof CheckoutAvailableRoomError: {
+              console.log("You can not checkout available room");
+              break;
+            }
+            default:
+              throw err
           }
-        } else {
-          console.log("You can not checkout available room")
         }
+
         break
       }
 
@@ -352,6 +351,38 @@ function bookByFloor(floor, guest, age) {
     const keycardNumber = book(roomNumber, guest, age)
     return { keycardNumber, roomNumber }
   })
+}
+
+function hasRoomBookedWithThisKeycardNumber(room) {
+  return room != 0;
+}
+
+function isGuestMatchKeycardNumber(room, guest) {
+  return room.guest === guest;
+}
+
+function checkoutRoom(room) {
+  //delete that room by index
+  bookedRooms.splice(bookedRooms.indexOf(room), 1)
+  //push keycard back
+  keycards.push(room.keycardNumber)
+}
+
+function checkout(keycardNumber, guest) {
+  room = findRoomByKeycardNumber(keycardNumber)
+
+  if (!hasRoomBookedWithThisKeycardNumber()) {
+    throw new CheckoutAvailableRoomError();
+  }
+  //there is the room that booked with this keycard number
+  if (!isGuestMatchKeycardNumber(room, guest)) {
+    throw new GuestNotMatchKeycardNumberError();
+  } 
+  //name match with keycardNumber
+  //checkout
+  checkoutRoom(room);
+
+  console.log(`Room ${room.roomNumber} is checkout.`)
 }
 
 function isRoomBookedByFloor(floor) {
