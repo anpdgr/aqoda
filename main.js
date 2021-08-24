@@ -190,7 +190,7 @@ function main() {
       case "list_guest_by_age": {
         //list_guest_by_age < 18
         const [operation, age] = command.params;
-        
+
         const guestsByAge = getGuestsByAge(operation, age);
 
         console.log(guestsByAge.join(", "));
@@ -201,13 +201,8 @@ function main() {
       case "list_guest_by_floor": {
         //list_guest_by_floor 2
         const [floor] = command.params;
-        guestsByFloor = [];
 
-        bookedRooms.forEach((room) => {
-          if (room.floor === floor)
-            if (!guestsByFloor.find((guest) => guest === room.guest))
-              guestsByFloor.push(room.guest);
-        });
+        const guestsByFloor = listGuestsByFloor(floor);
 
         console.log(guestsByFloor.join(", "));
         break;
@@ -400,8 +395,8 @@ function getAllGuests() {
   return allGuests;
 }
 
-function isGuestPushed(guestsByAge, room) {
-  guestsByAge.find((guest) => guest === room.guest)
+function isGuestPushed(guestsArray, room) {
+  guestsArray.find((guest) => guest === room.guest);
 }
 
 function getGuestsByAge(operation, age) {
@@ -409,12 +404,26 @@ function getGuestsByAge(operation, age) {
 
   bookedRooms.forEach((room) => {
     if (eval(room.age + operation + age)) {
-      if (!isGuestPushed(guestsByAge, room))
-        guestsByAge.push(room.guest);
+      if (!isGuestPushed(guestsByAge, room)) guestsByAge.push(room.guest);
     }
   });
 
   return guestsByAge;
+}
+
+function isRoomOnFloor(room, floor) {
+  return room.floor === floor;
+}
+
+function listGuestsByFloor(floor) {
+  const guestsByFloor = [];
+
+  bookedRooms.forEach((room) => {
+    if (isRoomOnFloor(room, floor))
+      if (!isGuestPushed(guestsByFloor, room)) guestsByFloor.push(room.guest);
+  });
+
+  return guestsByFloor;
 }
 
 function isRoomBookedByFloor(floor) {
