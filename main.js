@@ -190,16 +190,11 @@ function main() {
       case "list_guest_by_age": {
         //list_guest_by_age < 18
         const [operation, age] = command.params;
-        guestsByAge = [];
-
-        bookedRooms.forEach((room) => {
-          if (eval(room.age + operation + age)) {
-            if (!guestsByAge.find((guest) => guest === room.guest))
-              guestsByAge.push(room.guest);
-          }
-        });
+        
+        const guestsByAge = getGuestsByAge(operation, age);
 
         console.log(guestsByAge.join(", "));
+
         break;
       }
 
@@ -403,6 +398,23 @@ function getAllGuests() {
   });
 
   return allGuests;
+}
+
+function isGuestPushed(guestsByAge, room) {
+  guestsByAge.find((guest) => guest === room.guest)
+}
+
+function getGuestsByAge(operation, age) {
+  const guestsByAge = [];
+
+  bookedRooms.forEach((room) => {
+    if (eval(room.age + operation + age)) {
+      if (!isGuestPushed(guestsByAge, room))
+        guestsByAge.push(room.guest);
+    }
+  });
+
+  return guestsByAge;
 }
 
 function isRoomBookedByFloor(floor) {
