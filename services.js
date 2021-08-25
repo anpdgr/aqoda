@@ -55,14 +55,13 @@ function generateKeycard() {
   return keycards.pop();
 }
 
-function bookRoom(roomNumber, keycardNumber, guest, age) {
+function bookRoom(roomNumber, keycardNumber, guest) {
   bookedRooms.push(
     new Room(
       roomNumber,
       Number(roomNumber.toString()[0]),
       keycardNumber,
-      guest,
-      age
+      guest
     )
   );
 }
@@ -117,8 +116,8 @@ function hasRoomBookedWithThisKeycardNumber(room) {
   return room != 0;
 }
 
-function isGuestMatchKeycardNumber(room, guest) {
-  return room.guest === guest;
+function isGuestMatchKeycardNumber(room, name) {
+  return room.guest.name === name;
 }
 
 function isRoomOnFloor(room, floor) {
@@ -126,7 +125,7 @@ function isRoomOnFloor(room, floor) {
 }
 
 function isGuestPushed(guestsArray, room) {
-  guestsArray.find((guest) => guest === room.guest);
+  guestsArray.find((guest) => guest === room.guest.name);
 }
 
 function createHotel(floor, roomPerFloor) {
@@ -141,25 +140,20 @@ function createHotel(floor, roomPerFloor) {
   return hotel;
 }
 
-function book(roomNumber, guest, age) {
+function book(roomNumber, guest) {
   if (isHotelFullyBooked()) {
     throw new HotelIsFullError();
   }
 
   const room = findRoomByRoomNumber(roomNumber);
   if (!isRoomAvailable(room)) {
-    throw new RoomIsAlreadyBookedError(
-      room.guest,
-      room.age,
-      roomNumber,
-      room.keycardNumber
-    );
+    throw new RoomIsAlreadyBookedError(room);
   }
 
   //room is available -> book
   //book
   const keycardNumber = generateKeycard();
-  bookRoom(roomNumber, keycardNumber, guest, age);
+  bookRoom(roomNumber, keycardNumber, guest);
   return keycardNumber;
 }
 
@@ -201,14 +195,14 @@ function listAvailableRooms() {
   return allRooms.filter((room) => !listBookedRoomNumbers().includes(room));
 }
 
-function checkout(keycardNumber, guest) {
+function checkout(keycardNumber, name) {
   room = findRoomByKeycardNumber(keycardNumber);
 
-  if (!hasRoomBookedWithThisKeycardNumber()) {
+  if (!hasRoomBookedWithThisKeycardNumber(room)) {
     throw new CheckoutAvailableRoomError();
   }
   //there is the room that booked with this keycard number
-  if (!isGuestMatchKeycardNumber(room, guest)) {
+  if (!isGuestMatchKeycardNumber(room, name)) {
     throw new GuestNotMatchKeycardNumberError();
   }
   //name match with keycardNumber
@@ -243,7 +237,7 @@ function listGuestsByAge(operation, age) {
   const guestsByAge = [];
 
   bookedRooms.forEach((room) => {
-    if (eval(room.age + operation + age)) {
+    if (eval(room.guest.age + operation + age)) {
       if (!isGuestPushed(guestsByAge, room)) guestsByAge.push(room.guest);
     }
   });

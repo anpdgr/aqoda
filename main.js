@@ -8,6 +8,7 @@ const {
   CheckoutAvailableRoomError,
   CheckoutAvailableRoomFloorError,
 } = require("./error");
+const {Guest} = require("./model");
 
 class Command {
   constructor(name, params) {
@@ -117,14 +118,15 @@ function createHotel(command) {
 }
 
 function book(command) {
-  const [roomNumber, guest, age] = command.params;
+  const [roomNumber, name, age] = command.params;
 
   //book 203 Thor 32
   try {
-    const keycardNumber = services.book(roomNumber, guest, age);
+    const guest = new Guest(name, age);
+    const keycardNumber = services.book(roomNumber, guest);
 
     console.log(
-      `Room ${roomNumber} is booked by ${guest} with keycard number ${keycardNumber}.`
+      `Room ${roomNumber} is booked by ${name} with keycard number ${keycardNumber}.`
     );
   } catch (err) {
     switch (true) {
@@ -134,7 +136,7 @@ function book(command) {
       }
       case err instanceof RoomIsAlreadyBookedError: {
         console.log(
-          `Cannot book room ${err.roomNumber} for ${guest}, The room is currently booked by ${err.guest}.`
+          `Cannot book room ${err.room.roomNumber} for ${name}, The room is currently booked by ${err.room.guest.name}.`
         );
         break;
       }
@@ -172,16 +174,16 @@ function bookByFloor(command) {
 
 function checkout(command) {
   //checkout 4 TonyStark
-  const [keycardNumber, guest] = command.params;
+  const [keycardNumber, name] = command.params;
 
   try {
-    const room = services.checkout(keycardNumber, guest);
+    const room = services.checkout(keycardNumber, name);
     console.log(`Room ${room.roomNumber} is checkout.`);
   } catch (err) {
     switch (true) {
       case err instanceof GuestNotMatchKeycardNumberError: {
         console.log(
-          `Only ${guest} can checkout with keycard number ${keycardNumber}.`
+          `Only ${name} can checkout with keycard number ${keycardNumber}.`
         );
         break;
       }
@@ -220,7 +222,7 @@ function listAvailableRooms(command) {
 
 function listGuests(command) {
   //list_guest
-  const allGuests = services.listGuests();
+  const allGuests = services.listGuests().map(guest => guest.name);
 
   console.log(allGuests.join(", "));
 }
@@ -229,7 +231,7 @@ function listGuestsByAge(command) {
   //list_guest_by_age < 18
   const [operation, age] = command.params;
 
-  const guestsByAge = services.listGuestsByAge(operation, age);
+  const guestsByAge = services.listGuestsByAge(operation, age).map(guest => guest.name);
 
   console.log(guestsByAge.join(", "));
 }
@@ -238,7 +240,7 @@ function listGuestsByFloor(command) {
   //list_guest_by_floor 2
   const [floor] = command.params;
 
-  const guestsByFloor = services.listGuestsByFloor(floor);
+  const guestsByFloor = services.listGuestsByFloor(floor).map(guest => guest.name);
 
   console.log(guestsByFloor.join(", "));
 }
@@ -247,7 +249,7 @@ function getGuestsInRoom(command) {
   //get_guest_in_room 203
   const [room] = command.params;
 
-  console.log(services.findRoomByRoomNumber(room).guest);
+  console.log(services.findRoomByRoomNumber(room).guest.name);
 }
 
 main();

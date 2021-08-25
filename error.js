@@ -11,11 +11,8 @@ exports.CheckoutAvailableRoomError = class CheckoutAvailableRoomError extends Er
 exports.CheckoutAvailableRoomFloorError = class CheckoutAvailableRoomFloorError extends Error {}
 
 exports.RoomIsAlreadyBookedError = class RoomIsAlreadyBookedError extends Error {
-  constructor(guest, age, roomNumber, keycardNumber) {
+  constructor(room) {
     super();
-    this.guest = guest;
-    this.age = age;
-    this.roomNumber = roomNumber;
-    this.keycardNumber = keycardNumber;
+    this.room = room;
   }
 }
