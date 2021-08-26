@@ -1,5 +1,6 @@
 const fs = require("fs");
 const services = require("./services.js");
+const repositories = require("./repositories.js");
 const {
   HotelIsFullError,
   RoomIsAlreadyBookedError,
@@ -177,7 +178,7 @@ function checkout(command) {
   const [keycardNumber, name] = command.params;
 
   try {
-    const room = services.checkout(keycardNumber, name);
+    const room = repositories.checkout(keycardNumber, name);
     console.log(`Room ${room.roomNumber} is checkout.`);
   } catch (err) {
     switch (true) {
