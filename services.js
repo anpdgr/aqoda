@@ -65,7 +65,7 @@ function isRoomBookedByFloor(floor) {
   return result;
 }
 
-function getRoomsOnFloor(floor) {
+function listRoomsOnFloor(floor) {
   //create array of all booked roomNum on that floor
   return listBookedRoom().filter((room) => room.floor == floor);
 }
@@ -79,11 +79,11 @@ function checkoutRoomByFloor(roomsOnFloor) {
   }
 }
 
-function findRoomNumbersByFloor(floor) {
+function listRoomNumbersByFloor(floor) {
   return listAvailableRooms().filter((room) => room.floor == floor);
 }
 
-function findRoomByKeycardNumber(keycardNumber) {
+function getRoomByKeycardNumber(keycardNumber) {
   return allRooms.find((room) => {
     return room.keycardNumber === keycardNumber;
   });
@@ -94,7 +94,7 @@ function isRoomOnFloor(room, floor) {
 }
 
 function isGuestPushed(guestsArray, room) {
-  guestsArray.find((guestName) => guestName === room.guest.name);
+  return guestsArray.find((guestName) => guestName === room.guest.name);
 }
 
 function createHotel(floor, roomPerFloor) {
@@ -114,7 +114,7 @@ function book(roomNumber, guest) {
     throw new HotelIsFullError();
   }
 
-  const room = findRoomByRoomNumber(roomNumber);
+  const room = getRoomByRoomNumber(roomNumber);
   if (!room.isAvailable) {
     throw new RoomIsAlreadyBookedError(room);
   }
@@ -124,7 +124,7 @@ function book(roomNumber, guest) {
   return keycardNumber;
 }
 
-function findRoomByRoomNumber(roomNumber) {
+function getRoomByRoomNumber(roomNumber) {
   return allRooms.find((room) => {
     return room.roomNumber === roomNumber;
   });
@@ -134,7 +134,7 @@ function bookByFloor(floor, guest, age) {
   if (isRoomBookedByFloor(floor)) {
     throw new RoomFloorIsAlreadyBookedError(floor, guest);
   }
-  const roomsOnFloor = findRoomNumbersByFloor(floor);
+  const roomsOnFloor = listRoomNumbersByFloor(floor);
 
   for (let roomCount = 0; roomCount < roomsOnFloor.length; roomCount++) {
     book(roomsOnFloor[roomCount].roomNumber, roomsOnFloor[roomCount].guest);
@@ -149,7 +149,7 @@ function checkoutGuestByFloor(floor) {
   }
   //there is some room on that floor was booked
   //checkout that room
-  const roomsOnFloor = getRoomsOnFloor(floor);
+  const roomsOnFloor = listRoomsOnFloor(floor);
 
   checkoutRoomByFloor(roomsOnFloor);
 
@@ -163,7 +163,7 @@ function listAvailableRooms() {
 }
 
 function checkout(keycardNumber, name) {
-  const room = findRoomByKeycardNumber(keycardNumber);
+  const room = getRoomByKeycardNumber(keycardNumber);
 
   if (!room) {
     throw new CheckoutAvailableRoomError();
@@ -214,7 +214,7 @@ function listGuestsByAge(operation, age) {
 module.exports = {
   createHotel,
   book,
-  findRoomByRoomNumber,
+  getRoomByRoomNumber,
   bookByFloor,
   checkoutGuestByFloor,
   listAvailableRooms,

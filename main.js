@@ -260,7 +260,7 @@ function getGuestsInRoom(command) {
   //get_guest_in_room 203
   const [roomNumber] = command.params;
 
-  console.log(services.findRoomByRoomNumber(roomNumber.toString()).guest.name);
+  console.log(services.getRoomByRoomNumber(roomNumber.toString()).guest.name);
 }
 
 main();
