@@ -161,11 +161,11 @@ function checkout(keycardNumber, name) {
   return room;
 }
 
-function listGuests() {
+function listGuestsName() {
   return allRooms.filter((room) => !room.isAvailable).map((room) => room.guest);
 }
 
-function listGuestsByFloor(floor) {
+function listGuestsNameByFloor(floor) {
   return Array.from(
     new Set(
       listBookedRoom()
@@ -175,7 +175,7 @@ function listGuestsByFloor(floor) {
   );
 }
 
-function listGuestsByAge(operation, age) {
+function listGuestsNameByAge(operation, age) {
   return Array.from(
     new Set(
       listBookedRoom()
@@ -193,7 +193,7 @@ module.exports = {
   checkoutGuestByFloor,
   listAvailableRooms,
   checkout,
-  listGuests,
-  listGuestsByFloor,
-  listGuestsByAge,
+  listGuestsName,
+  listGuestsNameByFloor,
+  listGuestsNameByAge,
 };

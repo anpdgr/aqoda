@@ -231,7 +231,7 @@ function listAvailableRooms(command) {
 
 function listGuests(command) {
   //list_guest
-  const allGuests = services.listGuests().map((guest) => guest.name);
+  const allGuests = services.listGuestsName().map((guest) => guest.name);
 
   console.log(allGuests.join(", "));
 }
@@ -241,7 +241,7 @@ function listGuestsByAge(command) {
   const [operation, age] = command.params;
 
   const guestsByAge = services
-    .listGuestsByAge(operation, age);
+    .listGuestsNameByAge(operation, age);
 
   console.log(guestsByAge.join(", "));
 }
@@ -250,7 +250,7 @@ function listGuestsByFloor(command) {
   //list_guest_by_floor 2
   const [floor] = command.params;
 
-  const guestsByFloor = services.listGuestsByFloor(floor);
+  const guestsByFloor = services.listGuestsNameByFloor(floor);
 
   console.log(guestsByFloor.join(", "));
 }
