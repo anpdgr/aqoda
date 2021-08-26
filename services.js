@@ -2,53 +2,25 @@ const {
   HotelIsFullError,
   RoomIsAlreadyBookedError,
   RoomFloorIsAlreadyBookedError,
+  CheckoutAvailableRoomFloorError,
   GuestNotMatchKeycardNumberError,
   CheckoutAvailableRoomError,
-  CheckoutAvailableRoomFloorError,
 } = require("./error");
-const { keycards, allRooms } = require("./localdb");
-const { Room } = require("./model");
 
-function createKeycards(floor, roomPerFloor) {
-  //set all possible keycard number DESC
-  const numberOfKeycard = floor * roomPerFloor;
-
-  for (let count = numberOfKeycard; count >= 1; count--) {
-    keycards.push(count);
-  }
-}
-
-function createRooms(floor, roomPerFloor) {
-  //set all room num
-  for (let floorCount = 1; floorCount <= floor; floorCount++) {
-    for (let roomCount = 1; roomCount <= roomPerFloor; roomCount++) {
-      if (!roomCount.toString()[1]) {
-        //f01-f09
-        roomNumber = floorCount.toString() + "0" + roomCount.toString();
-      } else {
-        //f10-f99
-        roomNumber = floorCount.toString() + roomCount.toString();
-      }
-
-      allRooms.push(new Room(roomNumber, floorCount));
-    }
-  }
-}
+const {
+  createKeycards,
+  generateKeycard,
+  getRoomByRoomNumber,
+  listAvailableRooms,
+  createRooms,
+  listBookedRoom,
+  getRoomByKeycardNumber,
+  returnKeycard,
+  listRooms
+} = require("./repositories");
 
 function isHotelFullyBooked() {
-  return listBookedRoomNumbers().length === allRooms.length;
-}
-
-function listBookedRoom() {
-  return allRooms.filter((room) => !room.isAvailable);
-}
-
-function listBookedRoomNumbers() {
-  return listBookedRoom().map((room) => room.roomNumber);
-}
-
-function generateKeycard() {
-  return keycards.pop();
+  return listBookedRoom().length === listRooms().length;
 }
 
 function hasBookedRoomOnFloor(floor) {
@@ -71,10 +43,6 @@ function checkoutRoomByFloor(roomsOnFloor) {
 
 function listRoomNumbersByFloor(floor) {
   return listAvailableRooms().filter((room) => room.floor === floor);
-}
-
-function getRoomByKeycardNumber(keycardNumber) {
-  return allRooms.find((room) => room.keycardNumber === keycardNumber);
 }
 
 function createHotel(floor, roomPerFloor) {
@@ -104,10 +72,6 @@ function book(roomNumber, guest) {
   return keycardNumber;
 }
 
-function getRoomByRoomNumber(roomNumber) {
-  return allRooms.find((room) => room.roomNumber === roomNumber);
-}
-
 function bookByFloor(floor, guest, age) {
   if (hasBookedRoomOnFloor(floor)) {
     throw new RoomFloorIsAlreadyBookedError(floor, guest);
@@ -119,6 +83,23 @@ function bookByFloor(floor, guest, age) {
   }
 
   return roomsOnFloor;
+}
+
+function checkout(keycardNumber, name) {
+  const room = getRoomByKeycardNumber(keycardNumber);
+
+  if (!room) {
+    throw new CheckoutAvailableRoomError();
+  }
+  //there is the room that booked with this keycard number
+  if (room.guest.name != name) {
+    throw new GuestNotMatchKeycardNumberError(room);
+  }
+  //name match with keycardNumber
+  //checkout
+  returnKeycard(room);
+  room.checkout();
+  return room;
 }
 
 function checkoutGuestByFloor(floor) {
@@ -134,39 +115,13 @@ function checkoutGuestByFloor(floor) {
   return roomsOnFloor;
 }
 
-function listAvailableRooms() {
-  return allRooms.filter(
-    (room) => !listBookedRoomNumbers().includes(room.roomNumber)
-  );
-}
-
-function checkout(keycardNumber, name) {
-  const room = getRoomByKeycardNumber(keycardNumber);
-
-  if (!room) {
-    throw new CheckoutAvailableRoomError();
-  }
-  //there is the room that booked with this keycard number
-  if (room.guest.name != name) {
-    throw new GuestNotMatchKeycardNumberError(room);
-  }
-  //name match with keycardNumber
-  //checkout
-  keycards.push(room.keycardNumber);
-  room.checkout();
-  return room;
-}
-
 function listGuests() {
   return listBookedRoom().map((room) => room.guest);
 }
 
 function listGuestsNameByFloor(floor) {
   return Array.from(
-    new Set(
-      listBookedRoomsByFloor(floor)
-        .map((room) => room.guest.name)
-    )
+    new Set(listBookedRoomsByFloor(floor).map((room) => room.guest.name))
   );
 }
 
@@ -191,4 +146,5 @@ module.exports = {
   listGuests,
   listGuestsNameByFloor,
   listGuestsNameByAge,
+  // getRoomByKeycardNumber
 };
