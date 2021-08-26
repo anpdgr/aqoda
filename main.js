@@ -231,7 +231,7 @@ function listAvailableRooms(command) {
 
 function listGuests(command) {
   //list_guest
-  const allGuests = services.listGuestsName().map((guest) => guest.name);
+  const allGuests = services.listGuests().map((guest) => guest.name);
 
   console.log(allGuests.join(", "));
 }
