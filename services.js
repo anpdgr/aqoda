@@ -22,7 +22,7 @@ function createRooms(floor, roomPerFloor) {
   //set all room num
   for (let floorCount = 1; floorCount <= floor; floorCount++) {
     for (let roomCount = 1; roomCount <= roomPerFloor; roomCount++) {
-      if (roomCount.toString()[1] === undefined) {
+      if (!roomCount.toString()[1]) {
         //f01-f09
         roomNumber = floorCount.toString() + "0" + roomCount.toString();
       } else {
@@ -44,11 +44,7 @@ function listBookedRoom() {
 }
 
 function listBookedRoomNumbers() {
-  bookedRoomNumbers = [];
-  listBookedRoom().forEach((room) => {
-    bookedRoomNumbers.push(room.roomNumber);
-  });
-  return bookedRoomNumbers;
+  return listBookedRoom().map((room) => room.roomNumber);
 }
 
 function generateKeycard() {
@@ -56,18 +52,12 @@ function generateKeycard() {
 }
 
 function isRoomBookedByFloor(floor) {
-  result = false;
-
-  listBookedRoom().forEach((room) =>
-    room.floor === floor ? (result = true) : ""
-  );
-
-  return result;
+  return listBookedRoom().some((room) => room.floor === floor)
 }
 
 function listRoomsOnFloor(floor) {
   //create array of all booked roomNum on that floor
-  return listBookedRoom().filter((room) => room.floor == floor);
+  return listBookedRoom().filter((room) => room.floor === floor);
 }
 
 function checkoutRoomByFloor(roomsOnFloor) {
@@ -80,21 +70,15 @@ function checkoutRoomByFloor(roomsOnFloor) {
 }
 
 function listRoomNumbersByFloor(floor) {
-  return listAvailableRooms().filter((room) => room.floor == floor);
+  return listAvailableRooms().filter((room) => room.floor === floor);
 }
 
 function getRoomByKeycardNumber(keycardNumber) {
-  return allRooms.find((room) => {
-    return room.keycardNumber === keycardNumber;
-  });
+  return allRooms.find((room) => room.keycardNumber === keycardNumber);
 }
 
 function isRoomOnFloor(room, floor) {
   return room.floor === floor;
-}
-
-function isGuestPushed(guestsArray, room) {
-  return guestsArray.find((guestName) => guestName === room.guest.name);
 }
 
 function createHotel(floor, roomPerFloor) {
@@ -125,9 +109,7 @@ function book(roomNumber, guest) {
 }
 
 function getRoomByRoomNumber(roomNumber) {
-  return allRooms.find((room) => {
-    return room.roomNumber === roomNumber;
-  });
+  return allRooms.find((room) => room.roomNumber === roomNumber);
 }
 
 function bookByFloor(floor, guest, age) {
@@ -180,35 +162,27 @@ function checkout(keycardNumber, name) {
 }
 
 function listGuests() {
-  return allRooms
-    .filter((room) => {
-      return !room.isAvailable;
-    })
-    .map((room) => room.guest);
+  return allRooms.filter((room) => !room.isAvailable).map((room) => room.guest);
 }
 
 function listGuestsByFloor(floor) {
-  const guestsByFloor = [];
-
-  listBookedRoom().forEach((room) => {
-    if (isRoomOnFloor(room, floor))
-      if (!isGuestPushed(guestsByFloor, room))
-        guestsByFloor.push(room.guest.name);
-  });
-
-  return guestsByFloor;
+  return Array.from(
+    new Set(
+      listBookedRoom()
+        .filter((room) => isRoomOnFloor(room, floor))
+        .map((room) => room.guest.name)
+    )
+  );
 }
 
 function listGuestsByAge(operation, age) {
-  const guestsByAge = [];
-
-  listBookedRoom().forEach((room) => {
-    if (eval(room.guest.age + operation + age)) {
-      if (!isGuestPushed(guestsByAge, room)) guestsByAge.push(room.guest);
-    }
-  });
-
-  return guestsByAge;
+  return Array.from(
+    new Set(
+      listBookedRoom()
+        .filter((room) => eval(room.guest.age + operation + age))
+        .map((room) => room.guest.name)
+    )
+  );
 }
 
 module.exports = {

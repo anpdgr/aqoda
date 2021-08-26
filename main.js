@@ -241,8 +241,7 @@ function listGuestsByAge(command) {
   const [operation, age] = command.params;
 
   const guestsByAge = services
-    .listGuestsByAge(operation, age)
-    .map((guest) => guest.name);
+    .listGuestsByAge(operation, age);
 
   console.log(guestsByAge.join(", "));
 }
