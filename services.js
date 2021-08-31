@@ -16,7 +16,8 @@ const {
   listBookedRoom,
   getRoomByKeycardNumber,
   returnKeycard,
-  listRooms
+  listRooms,
+  saveRoom
 } = require("./repositories");
 
 function isHotelFullyBooked() {
@@ -41,7 +42,7 @@ function checkoutRoomByFloor(roomsOnFloor) {
   }
 }
 
-function listRoomNumbersByFloor(floor) {
+function listRoomsByFloor(floor) {
   return listAvailableRooms().filter((room) => room.floor === floor);
 }
 
@@ -68,21 +69,21 @@ function book(roomNumber, guest) {
   }
 
   const keycardNumber = generateKeycard();
-  room.book(guest, keycardNumber);
+  const updatedBook = room.book(guest, keycardNumber);
+  saveRoom(updatedBook)
   return keycardNumber;
 }
 
-function bookByFloor(floor, guest, age) {
+function bookByFloor(floor, guest) {
   if (hasBookedRoomOnFloor(floor)) {
-    throw new RoomFloorIsAlreadyBookedError(floor, guest);
+    throw new RoomFloorIsAlreadyBookedError(floor, guest.name);
   }
-  const roomsOnFloor = listRoomNumbersByFloor(floor);
+  const roomsOnFloor = listRoomsByFloor(floor);
 
   for (let roomCount = 0; roomCount < roomsOnFloor.length; roomCount++) {
-    book(roomsOnFloor[roomCount].roomNumber, roomsOnFloor[roomCount].guest);
+    book(roomsOnFloor[roomCount].roomNumber, guest);
   }
-
-  return roomsOnFloor;
+  return listBookedRoomsByFloor(floor);
 }
 
 function checkout(keycardNumber, name) {
@@ -98,7 +99,8 @@ function checkout(keycardNumber, name) {
   //name match with keycardNumber
   //checkout
   returnKeycard(room);
-  room.checkout();
+  const updatedBook = room.checkout();
+  saveRoom(updatedBook)
   return room;
 }
 

@@ -148,10 +148,11 @@ function book(command) {
 
 function bookByFloor(command) {
   //book_by_floor 1 TonyStark 48
-  const [floor, guest, age] = command.params;
+  const [floor, name, age] = command.params;
 
   try {
-    const roomsOnFloor = services.bookByFloor(floor, guest, age);
+    const guest = new Guest(name, age);
+    const roomsOnFloor = services.bookByFloor(floor, guest);
     // [{keycardNumber, roomNumber}, {keycardNumber, roomNumber}]
     const rooms = roomsOnFloor.map((room) => room.roomNumber);
     const keycardNumbers = roomsOnFloor.map((room) => room.keycardNumber);
@@ -163,7 +164,7 @@ function bookByFloor(command) {
   } catch (err) {
     switch (true) {
       case err instanceof RoomFloorIsAlreadyBookedError: {
-        console.log(`Cannot book floor ${floor} for ${guest}.`);
+        console.log(`Cannot book floor ${floor} for ${name}.`);
         break;
       }
       default:

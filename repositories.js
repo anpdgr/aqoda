@@ -24,9 +24,9 @@ function getRoomByRoomNumber(roomNumber) {
 
 function listAvailableRooms() {
   const roomsByRoomNumber = listBookedRoom().reduce((initial, room) => initial.set(room.roomNumber, true), new Map())
-
+  
   return allRooms.filter(
-    (room) => !roomsByRoomNumber[room.roomNumber]
+  (room) => !roomsByRoomNumber.has(room.roomNumber)
   );
 }
 
@@ -59,4 +59,9 @@ function listRooms() {
   return allRooms;
 }
 
-module.exports = { createKeycards, generateKeycard, getRoomByRoomNumber, listAvailableRooms, createRooms, listBookedRoom, getRoomByKeycardNumber, returnKeycard, listRooms }
+function saveRoom(updatedRoom) {
+  const index = allRooms.findIndex(room => room.roomNumber === updatedRoom.roomNumber);
+  allRooms[index] = updatedRoom;
+}
+
+module.exports = { createKeycards, generateKeycard, getRoomByRoomNumber, listAvailableRooms, createRooms, listBookedRoom, getRoomByKeycardNumber, returnKeycard, listRooms, saveRoom }

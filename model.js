@@ -7,8 +7,7 @@ class Room {
   }
 
   book(guest, keycardNumber) {
-    this.keycardNumber = keycardNumber;
-    this.guest = guest;
+    return new Room(this.roomNumber, this.floor, keycardNumber, guest)
   }
 
   get isAvailable() {
@@ -16,8 +15,7 @@ class Room {
   }
 
   checkout() {
-    this.guest = null;
-    this.keycardNumber = null;
+    return new Room(this.roomNumber, this.floor, null, null)
   }
 }
 
