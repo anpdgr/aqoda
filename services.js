@@ -18,19 +18,19 @@ const {
   returnKeycard,
   listRooms,
   saveRoom
-} = require("./repositories");
+} = require("./postgres-repositories");
 
-function isHotelFullyBooked() {
-  return listBookedRoom().length === listRooms().length;
+async function isHotelFullyBooked() {
+  return (await listBookedRoom()).length === (await listRooms()).length;
 }
 
 function hasBookedRoomOnFloor(floor) {
   return listBookedRoomsByFloor(floor).length > 0;
 }
 
-function listBookedRoomsByFloor(floor) {
+async function listBookedRoomsByFloor(floor) {
   //create array of all booked roomNum on that floor
-  return listBookedRoom().filter((room) => room.floor === floor);
+  return (await listBookedRoom()).filter((room) => room.floor === floor);
 }
 
 function checkoutRoomByFloor(roomsOnFloor) {
@@ -42,35 +42,35 @@ function checkoutRoomByFloor(roomsOnFloor) {
   }
 }
 
-function listRoomsByFloor(floor) {
-  return listAvailableRooms().filter((room) => room.floor === floor);
+async function listRoomsByFloor(floor) {
+  return (await listAvailableRooms()).filter((room) => room.floor === floor);
 }
 
-function createHotel(floor, roomPerFloor) {
+async function createHotel(floor, roomPerFloor) {
   const hotel = { floor, roomPerFloor };
 
   if (roomPerFloor > 99)
     throw new Error("Can not create hotel with 100 or more rooms per floor");
 
-  createKeycards(floor, roomPerFloor);
-  createRooms(floor, roomPerFloor);
+  await createKeycards(floor, roomPerFloor);
+  await createRooms(floor, roomPerFloor);
 
   return hotel;
 }
 
-function book(roomNumber, guest) {
-  if (isHotelFullyBooked()) {
+async function book(roomNumber, guest) {
+  if (await isHotelFullyBooked()) {
     throw new HotelIsFullError();
   }
 
-  const room = getRoomByRoomNumber(roomNumber);
+  const room = await getRoomByRoomNumber(roomNumber);
   if (!room.isAvailable) {
     throw new RoomIsAlreadyBookedError(room);
   }
 
-  const keycardNumber = generateKeycard();
+  const keycardNumber = await generateKeycard();
   const updatedBook = room.book(guest, keycardNumber);
-  saveRoom(updatedBook)
+  await saveRoom(updatedBook)
   return keycardNumber;
 }
 
@@ -117,20 +117,20 @@ function checkoutGuestByFloor(floor) {
   return roomsOnFloor;
 }
 
-function listGuests() {
-  return listBookedRoom().map((room) => room.guest);
+async function listGuests() {
+  return (await listBookedRoom()).map((room) => room.guest);
 }
 
-function listGuestsNameByFloor(floor) {
+async function listGuestsNameByFloor(floor) {
   return Array.from(
-    new Set(listBookedRoomsByFloor(floor).map((room) => room.guest.name))
+    new Set((await listBookedRoomsByFloor(floor)).map((room) => room.guest.name))
   );
 }
 
-function listGuestsNameByAge(operation, age) {
+async function listGuestsNameByAge(operation, age) {
   return Array.from(
     new Set(
-      listGuests()
+      (await listGuests())
         .filter((guest) => eval(guest.age + operation + age))
         .map((guest) => guest.name)
     )

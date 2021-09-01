@@ -17,67 +17,68 @@ class Command {
   }
 }
 
-function main() {
+async function main() {
   const fileName = "input.txt";
   const commands = getCommandsFromFileName(fileName);
 
-  commands.forEach((command) => {
+  await commands.reduce(async (initial, command) => {
+    await initial;
     switch (command.name) {
       case "create_hotel": {
-        createHotel(command);
+        await createHotel(command);
 
         break;
       }
 
       case "book": {
-        book(command);
+        await book(command);
 
         break;
       }
 
       case "book_by_floor": {
-        bookByFloor(command);
+        await bookByFloor(command);
 
         break;
       }
 
       case "checkout": {
-        checkout(command);
+        await checkout(command);
 
         break;
       }
 
       case "checkout_guest_by_floor": {
-        checkoutGuestByFloor(command);
+        await checkoutGuestByFloor(command);
 
         break;
       }
 
       case "list_available_rooms": {
-        listAvailableRooms(command);
+        await listAvailableRooms(command);
 
         break;
       }
 
       case "list_guest": {
-        listGuests(command);
+        await listGuests(command);
 
         break;
       }
 
       case "list_guest_by_age": {
-        listGuestsByAge(command);
+        await listGuestsByAge(command);
 
         break;
       }
 
       case "list_guest_by_floor": {
-        listGuestsByFloor(command);
+        await listGuestsByFloor(command);
         break;
       }
 
       case "get_guest_in_room": {
-        getGuestsInRoom(command);
+        await getGuestsInRoom(command);
         break;
       }
 
@@ -86,7 +87,8 @@ function main() {
         break;
       }
     }
-  });
+    return Promise.resolve();
+  }, Promise.resolve());
 }
 
 function getCommandsFromFileName(fileName) {
@@ -107,23 +109,23 @@ function getCommandsFromFileName(fileName) {
     );
 }
 
-function createHotel(command) {
+async function createHotel(command) {
   const [floor, roomPerFloor] = command.params;
 
-  const hotel = services.createHotel(floor, roomPerFloor);
+  const hotel = await services.createHotel(floor, roomPerFloor);
 
   console.log(
     `Hotel created with ${hotel.floor} floor(s), ${hotel.roomPerFloor} room(s) per floor.`
   );
 }
 
-function book(command) {
+async function book(command) {
   const [roomNumber, name, age] = command.params;
 
   //book 203 Thor 32
   try {
     const guest = new Guest(name, age);
-    const keycardNumber = services.book(roomNumber.toString(), guest);
+    const keycardNumber = await services.book(roomNumber.toString(), guest);
 
     console.log(
       `Room ${roomNumber} is booked by ${name} with keycard number ${keycardNumber}.`
@@ -146,13 +148,13 @@ function book(command) {
   }
 }
 
-function bookByFloor(command) {
+async function bookByFloor(command) {
   //book_by_floor 1 TonyStark 48
   const [floor, name, age] = command.params;
 
   try {
     const guest = new Guest(name, age);
-    const roomsOnFloor = services.bookByFloor(floor, guest);
+    const roomsOnFloor = await services.bookByFloor(floor, guest);
     // [{keycardNumber, roomNumber}, {keycardNumber, roomNumber}]
     const rooms = roomsOnFloor.map((room) => room.roomNumber);
     const keycardNumbers = roomsOnFloor.map((room) => room.keycardNumber);
@@ -221,46 +223,46 @@ function checkoutGuestByFloor(command) {
   }
 }
 
-function listAvailableRooms(command) {
+async function listAvailableRooms(command) {
   console.log(
-    services
-      .listAvailableRooms()
+    (await services
+      .listAvailableRooms())
       .map((availableRoom) => availableRoom.roomNumber)
       .join(", ")
   );
 }
 
-function listGuests(command) {
+async function listGuests(command) {
   //list_guest
-  const allGuests = services.listGuests().map((guest) => guest.name);
+  const allGuests = (await services.listGuests()).map((guest) => guest.name);
 
   console.log(allGuests.join(", "));
 }
 
-function listGuestsByAge(command) {
+async function listGuestsByAge(command) {
   //list_guest_by_age < 18
   const [operation, age] = command.params;
 
-  const guestsByAge = services
+  const guestsByAge = await services
     .listGuestsNameByAge(operation, age);
 
   console.log(guestsByAge.join(", "));
 }
 
-function listGuestsByFloor(command) {
+async function listGuestsByFloor(command) {
   //list_guest_by_floor 2
   const [floor] = command.params;
 
-  const guestsByFloor = services.listGuestsNameByFloor(floor);
+  const guestsByFloor = await services.listGuestsNameByFloor(floor);
 
   console.log(guestsByFloor.join(", "));
 }
 
-function getGuestsInRoom(command) {
+async function getGuestsInRoom(command) {
   //get_guest_in_room 203
   const [roomNumber] = command.params;
 
-  console.log(services.getRoomByRoomNumber(roomNumber.toString()).guest.name);
+  console.log((await services.getRoomByRoomNumber(roomNumber.toString())).guest.name);
 }
 
 main();

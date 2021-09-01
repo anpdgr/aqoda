@@ -65,3 +65,4 @@ function saveRoom(updatedRoom) {
 }
 
 module.exports = { createKeycards, generateKeycard, getRoomByRoomNumber, listAvailableRooms, createRooms, listBookedRoom, getRoomByKeycardNumber, returnKeycard, listRooms, saveRoom }
+
