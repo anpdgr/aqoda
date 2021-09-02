@@ -24,22 +24,33 @@ async function isHotelFullyBooked() {
   return (await listBookedRoom()).length === (await listRooms()).length;
 }
 
-function hasBookedRoomOnFloor(floor) {
-  return listBookedRoomsByFloor(floor).length > 0;
+async function hasBookedRoomOnFloor(floor) {
+  return (await listBookedRoomsByFloor(floor)).length > 0;
 }
 
 async function listBookedRoomsByFloor(floor) {
-  //create array of all booked roomNum on that floor
   return (await listBookedRoom()).filter((room) => room.floor === floor);
 }
 
-function checkoutRoomByFloor(roomsOnFloor) {
-  for (let roomCount = 0; roomCount < roomsOnFloor.length; roomCount++) {
-    checkout(
-      roomsOnFloor[roomCount].keycardNumber,
-      roomsOnFloor[roomCount].guest.name
-    );
-  }
+async function checkoutRoomByFloor(roomsOnFloor) {
+  // const promiseArray = [];
+  // for (let roomCount = 0; roomCount < (await roomsOnFloor).length; roomCount++) {
+  //   promiseArray.push(checkout(
+  //     (await roomsOnFloor)[roomCount].keycardNumber,
+  //     (await roomsOnFloor)[roomCount].guest.name
+  //   ));
+  // }
+  // Promise.all(promiseArray).then(coRooms => coRooms.forEach(coRoom => console.log('CO ROOM = ' + coRoom.roomNumber)));
+  await roomsOnFloor.reduce(async (initial, room) => {
+    await initial;
+    await checkout(
+      room.keycardNumber,
+      room.guest.name
+    )
+
+    return Promise.resolve()
+  }, Promise.resolve())
+
 }
 
 async function listRoomsByFloor(floor) {
@@ -74,21 +85,24 @@ async function book(roomNumber, guest) {
   return keycardNumber;
 }
 
-function bookByFloor(floor, guest) {
-  if (hasBookedRoomOnFloor(floor)) {
+async function bookByFloor(floor, guest) {
+  if (await hasBookedRoomOnFloor(floor)) {
     throw new RoomFloorIsAlreadyBookedError(floor, guest.name);
   }
-  const roomsOnFloor = listRoomsByFloor(floor);
+  const roomsOnFloor = await listRoomsByFloor(floor);
 
-  for (let roomCount = 0; roomCount < roomsOnFloor.length; roomCount++) {
-    book(roomsOnFloor[roomCount].roomNumber, guest);
-  }
-  return listBookedRoomsByFloor(floor);
+  await roomsOnFloor.reduce(async (initial, room) => {
+    await initial;
+    await book(room.roomNumber, guest)
+
+    return Promise.resolve()
+  }, Promise.resolve())
+
+  return listBookedRoomsByFloor(floor)
 }
 
-function checkout(keycardNumber, name) {
-  const room = getRoomByKeycardNumber(keycardNumber);
-
+async function checkout(keycardNumber, name) {
+  const room = await getRoomByKeycardNumber(keycardNumber);
   if (!room) {
     throw new CheckoutAvailableRoomError();
   }
@@ -98,22 +112,21 @@ function checkout(keycardNumber, name) {
   }
   //name match with keycardNumber
   //checkout
-  returnKeycard(room);
-  const updatedBook = room.checkout();
-  saveRoom(updatedBook)
-  return room;
+  await returnKeycard(room);
+  const updatedRoom = room.checkout();
+  await saveRoom(updatedRoom);
+  return updatedRoom;
 }
 
-function checkoutGuestByFloor(floor) {
-  if (!hasBookedRoomOnFloor(floor)) {
+async function checkoutGuestByFloor(floor) {
+  if (!await hasBookedRoomOnFloor(floor)) {
     throw new CheckoutAvailableRoomFloorError();
   }
   //there is some room on that floor was booked
   //checkout that room
-  const roomsOnFloor = listBookedRoomsByFloor(floor);
+  const roomsOnFloor = await listBookedRoomsByFloor(floor);
 
-  checkoutRoomByFloor(roomsOnFloor);
-
+  await checkoutRoomByFloor(roomsOnFloor);
   return roomsOnFloor;
 }
 
@@ -148,5 +161,4 @@ module.exports = {
   listGuests,
   listGuestsNameByFloor,
   listGuestsNameByAge,
-  // getRoomByKeycardNumber
 };

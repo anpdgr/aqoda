@@ -175,12 +175,12 @@ async function bookByFloor(command) {
   }
 }
 
-function checkout(command) {
+async function checkout(command) {
   //checkout 4 TonyStark
   const [keycardNumber, name] = command.params;
 
   try {
-    const room = services.checkout(keycardNumber, name);
+    const room = await services.checkout(keycardNumber, name);
     console.log(`Room ${room.roomNumber} is checkout.`);
   } catch (err) {
     switch (true) {
@@ -200,12 +200,12 @@ function checkout(command) {
   }
 }
 
-function checkoutGuestByFloor(command) {
+async function checkoutGuestByFloor(command) {
   //checkout_guest_by_floor 1
   const [floor] = command.params;
 
   try {
-    const roomsOnFloor = services.checkoutGuestByFloor(floor);
+    const roomsOnFloor = await services.checkoutGuestByFloor(floor);
     console.log(
       `Room ${roomsOnFloor
         .map((room) => room.roomNumber)

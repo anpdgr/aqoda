@@ -27,8 +27,19 @@ async function generateKeycard() {
   return result.rows[0].number
 }
 
-function getRoomByKeycardNumber(keycardNumber) {
-  return allRooms.find((room) => room.keycardNumber === keycardNumber);
+async function getRoomByKeycardNumber(keycardNumber) {
+  sql = 'SELECT * FROM "rooms" WHERE "keycard" = $1;'
+  const result = await postgresClient.query(sql, [keycardNumber]);
+  return result.rows.map(
+    (row) =>
+      new Room(
+        row.number,
+        row.floor,
+        row.keycard,
+        row.guestName && row.guestAge ? new Guest(row.guestName, row.guestAge) : null
+      )
+  )[0];
+  // return allRooms.find((room) => room.keycardNumber === keycardNumber);
 }
 
 async function getRoomByRoomNumber(roomNumber) {
@@ -49,12 +60,24 @@ async function getRoomByRoomNumber(roomNumber) {
 }
 
 async function listAvailableRooms() {
-  const roomsByRoomNumber = (await listBookedRoom()).reduce(
-    (initial, room) => initial.set(room.roomNumber, true),
-    new Map()
-  );
+  // const roomsByRoomNumber = (await listBookedRoom()).reduce(
+  //   (initial, room) => initial.set(room.roomNumber, true),
+  //   new Map()
+  // );
 
-  return allRooms.filter((room) => !roomsByRoomNumber.has(room.roomNumber));
+  // return allRooms.filter((room) => !roomsByRoomNumber.has(room.roomNumber));
+  sql = 'SELECT * FROM "rooms" WHERE "keycard" IS NULL AND "guestName" IS NULL AND "guestAge" IS NULL;'
+  const result = await postgresClient.query(sql);
+  // console.log(result.rows);
+  return result.rows.map(
+    (row) =>
+      new Room(
+        row.number,
+        row.floor,
+        row.keycard,
+        row.guestName && row.guestAge ? new Guest(row.guestName, row.guestAge) : null
+      )
+  );
 }
 
 async function createRooms(floor, roomPerFloor) {
@@ -108,8 +131,10 @@ async function listBookedRoom() {
   // return allRooms.filter((room) => !room.isAvailable);
 }
 
-function returnKeycard(room) {
-  keycards.push(room.keycardNumber);
+async function returnKeycard(room) {
+  const sql = 'INSERT INTO "keycards"("number") VALUES ($1)'
+  await postgresClient.query(sql, [room.keycardNumber]);
+  // keycards.push(room.keycardNumber);
 }
 
 async function listRooms() {
@@ -129,7 +154,12 @@ async function listRooms() {
 
 async function saveRoom(updatedRoom) {
   const sql = 'UPDATE "public"."rooms" SET "keycard" = $1, "guestName" = $2, "guestAge" = $3 WHERE "number" = $4;'
-  await postgresClient.query(sql, [updatedRoom.keycardNumber, updatedRoom.guest.name, updatedRoom.guest.age, updatedRoom.roomNumber]);
+  if(updatedRoom.guest === null) {
+    await postgresClient.query(sql, [updatedRoom.keycardNumber, null, null, updatedRoom.roomNumber]);
+  }
+  else {
+    await postgresClient.query(sql, [updatedRoom.keycardNumber, updatedRoom.guest.name, updatedRoom.guest.age, updatedRoom.roomNumber]);
+  }
 }
 
 module.exports = {
