@@ -1,0 +1,20 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model keycards {
+  number Int @id @db.SmallInt
+}
+
+model rooms {
+  number    String  @id @db.VarChar
+  floor     Int     @db.SmallInt
+  keycard   Int?    @db.SmallInt
+  guestName String? @db.VarChar
+  guestAge  Int?    @db.SmallInt
+}

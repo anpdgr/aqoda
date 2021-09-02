@@ -18,7 +18,9 @@ const {
   returnKeycard,
   listRooms,
   saveRoom
-} = require("./postgres-repositories");
+} = require("./prisma-repositories");
+const firestoreRepo = require("./firestore-repositories");
+
 
 async function isHotelFullyBooked() {
   return (await listBookedRoom()).length === (await listRooms()).length;
@@ -33,14 +35,6 @@ async function listBookedRoomsByFloor(floor) {
 }
 
 async function checkoutRoomByFloor(roomsOnFloor) {
-  // const promiseArray = [];
-  // for (let roomCount = 0; roomCount < (await roomsOnFloor).length; roomCount++) {
-  //   promiseArray.push(checkout(
-  //     (await roomsOnFloor)[roomCount].keycardNumber,
-  //     (await roomsOnFloor)[roomCount].guest.name
-  //   ));
-  // }
-  // Promise.all(promiseArray).then(coRooms => coRooms.forEach(coRoom => console.log('CO ROOM = ' + coRoom.roomNumber)));
   await roomsOnFloor.reduce(async (initial, room) => {
     await initial;
     await checkout(
@@ -63,6 +57,7 @@ async function createHotel(floor, roomPerFloor) {
   if (roomPerFloor > 99)
     throw new Error("Can not create hotel with 100 or more rooms per floor");
 
+  // await firestoreRepo.createKeycards(floor, roomPerFloor);
   await createKeycards(floor, roomPerFloor);
   await createRooms(floor, roomPerFloor);
 

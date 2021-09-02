@@ -9,6 +9,9 @@ const {
   CheckoutAvailableRoomFloorError,
 } = require("./error");
 const { Guest } = require("./model");
+const postgresClient = require("./postgres-client");
+const prismaClient = require("./prisma-client");
+
 
 class Command {
   constructor(name, params) {
@@ -20,7 +23,7 @@ class Command {
 async function main() {
   const fileName = "input.txt";
   const commands = getCommandsFromFileName(fileName);
-
+  await postgresClient.query("DELETE FROM keycards; DELETE FROM rooms;")
   await commands.reduce(async (initial, command) => {
     await initial;
     switch (command.name) {
@@ -89,6 +92,8 @@ async function main() {
     }
     return Promise.resolve();
   }, Promise.resolve());
+  await prismaClient.$disconnect();
+  await postgresClient.end();
 }
 
 function getCommandsFromFileName(fileName) {
