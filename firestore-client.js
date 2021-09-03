@@ -1,4 +1,8 @@
 const admin = require('firebase-admin');
 admin.initializeApp();
 
-module.exports = admin.firestore()
+function createClient() {
+  return admin.firestore()
+}
+
+module.exports = createClient

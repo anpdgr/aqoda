@@ -12,7 +12,7 @@ const { Guest } = require("./model");
 const postgresClient = require("./postgres-client");
 const prismaClient = require("./prisma-client");
 const prismaRepositories = require("./prisma-repositories");
-const firestoreRepositories = require("./firestore-repositories");
+const createFirestoreRepositories = require("./firestore-repositories");
 
 class Command {
   constructor(name, params) {
@@ -117,7 +117,8 @@ function getCommandsFromFileName(fileName) {
 }
 
 function createApplication() {
-  const services = createService(firestoreRepositories);
+  const repositories = createFirestoreRepositories();
+  const services = createService(repositories);
   async function createHotel(command) {
     const [floor, roomPerFloor] = command.params;
 
