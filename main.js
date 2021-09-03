@@ -11,7 +11,8 @@ const {
 const { Guest } = require("./model");
 const postgresClient = require("./postgres-client");
 const prismaClient = require("./prisma-client");
-const prismaRepositories = require("./prisma-repositories");
+const createPosgresRepositories = require("./postgres-repositories");
+const createPrismaRepositories = require("./prisma-repositories");
 const createFirestoreRepositories = require("./firestore-repositories");
 
 class Command {
@@ -24,7 +25,7 @@ class Command {
 async function main() {
   const fileName = "input.txt";
   const commands = getCommandsFromFileName(fileName);
-  await postgresClient.query("DELETE FROM keycards; DELETE FROM rooms;");
+  // await postgresClient.query("DELETE FROM keycards; DELETE FROM rooms;");
   const application = createApplication();
   await commands.reduce(async (initial, command) => {
     await initial;
@@ -94,8 +95,8 @@ async function main() {
     }
     return Promise.resolve();
   }, Promise.resolve());
-  await prismaClient.$disconnect();
-  await postgresClient.end();
+  // await prismaClient.$disconnect();
+  // await postgresClient.end();
 }
 
 function getCommandsFromFileName(fileName) {
@@ -117,7 +118,16 @@ function getCommandsFromFileName(fileName) {
 }
 
 function createApplication() {
-  const repositories = createFirestoreRepositories();
+  let repositories;
+  const repoInput = process.argv[2];
+  if(repoInput === 'postgres') {
+    repositories = createPosgresRepositories();
+  } else if(repoInput === 'prisma') {
+    repositories = createPrismaRepositories();
+  } else if(repoInput === 'firebase') {
+    repositories = createFirestoreRepositories();
+  }
+
   const services = createService(repositories);
   async function createHotel(command) {
     const [floor, roomPerFloor] = command.params;

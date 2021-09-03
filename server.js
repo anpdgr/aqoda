@@ -14,7 +14,7 @@ app.get("/", (req, res, next) => {
 });
 
 app.post(
-  "/createhotel",
+  "/create_hotel",
   async (req, res, next) => {
     try {
       const hotel = await service.createHotel(req.body.floor, req.body.roomPerFloor);
