@@ -18,9 +18,7 @@ const {
   returnKeycard,
   listRooms,
   saveRoom
-} = require("./prisma-repositories");
-const firestoreRepo = require("./firestore-repositories");
-
+} = require("./firestore-repositories");
 
 async function isHotelFullyBooked() {
   return (await listBookedRoom()).length === (await listRooms()).length;
@@ -126,7 +124,7 @@ async function checkoutGuestByFloor(floor) {
 }
 
 async function listGuests() {
-  return (await listBookedRoom()).map((room) => room.guest);
+  return result = (await listBookedRoom()).map((room) => room.guest);
 }
 
 async function listGuestsNameByFloor(floor) {
