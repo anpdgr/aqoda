@@ -85,7 +85,6 @@ function createService(repository) {
       throw new RoomFloorIsAlreadyBookedError(floor, guest.name);
     }
     const roomsOnFloor = await listRoomsByFloor(floor);
-  
     await roomsOnFloor.reduce(async (initial, room) => {
       await initial;
       await book(room.roomNumber, guest)
