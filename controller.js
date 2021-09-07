@@ -1,3 +1,13 @@
+//DONE: show error, correct the status code
+
+const {
+  HotelIsFullError,
+  RoomIsAlreadyBookedError,
+  RoomFloorIsAlreadyBookedError,
+  GuestNotMatchKeycardNumberError,
+  CheckoutAvailableRoomError,
+  CheckoutAvailableRoomFloorError,
+} = require("./error");
 const { Guest } = require("./model");
 
 //create_hotel
@@ -27,7 +37,23 @@ async function book(req, res, next) {
       message: `Room ${req.body.roomNumber} is booked by ${req.body.guestName} with keycard number ${keycardNumber}.`,
     });
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    switch (true) {
+      case error instanceof HotelIsFullError: {
+        res.status(400).json({ errorMessage: "Hotel is fully booked." });
+        break;
+      }
+      case error instanceof RoomIsAlreadyBookedError: {
+        res
+          .status(400)
+          .json({
+            errorMessage: `Cannot book room ${error.room.roomNumber} for ${req.body.guestName}, The room is currently booked by ${error.room.guest.name}.`,
+          });
+        break;
+      }
+      default:
+        throw error;
+    }
+    // res.status(400).json({ error: error.message });
     console.error(error);
   }
 }
@@ -47,7 +73,18 @@ async function bookByFloor(req, res, next) {
       )} are booked with keycard number ${keycardNumbers.join(", ")}`,
     });
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    switch (true) {
+      case error instanceof RoomFloorIsAlreadyBookedError: {
+        res
+          .status(400)
+          .json({
+            errorMessage: `Cannot book floor ${req.body.floor} for ${req.body.guestName}.`,
+          });
+        break;
+      }
+      default:
+        throw error;
+    }
     console.error(error);
   }
 }
@@ -63,7 +100,24 @@ async function checkout(req, res, next) {
       message: `Room ${updatedRoom.roomNumber} is checkout.`,
     });
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    switch (true) {
+      case error instanceof GuestNotMatchKeycardNumberError: {
+        res
+          .status(400)
+          .json({
+            errorMessage: `Only ${error.room.guest.name} can checkout with keycard number ${req.body.keycardNumber}.`,
+          });
+        break;
+      }
+      case error instanceof CheckoutAvailableRoomError: {
+        res
+          .status(400)
+          .json({ errorMessage: "You can not checkout available room" });
+        break;
+      }
+      default:
+        throw error;
+    }
     console.error(error);
   }
 }
@@ -81,7 +135,18 @@ async function checkoutGuestByFloor(req, res, next) {
       message: `Room ${roomNumbersOnFloor} is checkout.`,
     });
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    switch (true) {
+      case error instanceof CheckoutAvailableRoomFloorError: {
+        res
+          .status(400)
+          .json({
+            errorMessage: `No room on floor ${req.body.floor} was booked.`,
+          });
+        break;
+      }
+      default:
+        throw error;
+    }
     console.error(error);
   }
 }

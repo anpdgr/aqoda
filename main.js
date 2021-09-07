@@ -1,5 +1,4 @@
 const fs = require("fs");
-// const createApplication = require("./cli-controller");
 const createApplication = require("./cli-controller");
 const createService = require("./services.js");
 
