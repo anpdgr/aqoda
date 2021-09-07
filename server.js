@@ -1,3 +1,5 @@
+//TODO: controller -> controller.js, req.services
+
 const express = require("express");
 const dotenv = require("dotenv");
 dotenv.config();
@@ -8,7 +10,13 @@ const { Guest } = require("./model");
 const app = express();
 const repositories = createRepositories();
 const services = createService(repositories);
+
 app.use(express.json());
+
+app.use((req, res, next) => {
+  req.services = services;
+  next();
+})
 
 app.get("/", (req, res, next) => {
   res.json({ message: "OK" });
@@ -33,7 +41,7 @@ app.post("/create_hotel", async (req, res, next) => {
 //book
 app.post("/book", async (req, res, next) => {
   try {
-    const keycardNumber = await services.book(
+    const keycardNumber = await req.services.book(
       req.body.roomNumber,
       new Guest(req.body.guestName, req.body.guestAge)
     );

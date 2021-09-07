@@ -11,9 +11,10 @@ const {
 const { Guest } = require("./model");
 const postgresClient = require("./postgres-client");
 const prismaClient = require("./prisma-client");
-const createPosgresRepositories = require("./postgres-repositories");
+const createPostgresRepositories = require("./postgres-repositories");
 const createPrismaRepositories = require("./prisma-repositories");
 const createFirestoreRepositories = require("./firestore-repositories");
+const createRepositories = require("./postgres-repositories");
 
 class Command {
   constructor(name, params) {
@@ -95,6 +96,7 @@ async function main() {
     }
     return Promise.resolve();
   }, Promise.resolve());
+  //TODO: คิดวิธี ทำไงก้ได้
   // await prismaClient.$disconnect();
   // await postgresClient.end();
 }
@@ -117,16 +119,18 @@ function getCommandsFromFileName(fileName) {
     );
 }
 
+//TODO: createApp -> createController, move file, รับ services from main
 function createApplication() {
   let repositories;
   const repoInput = process.argv[2];
-  if(repoInput === 'postgres') {
-    repositories = createPosgresRepositories();
-  } else if(repoInput === 'prisma') {
-    repositories = createPrismaRepositories();
-  } else if(repoInput === 'firebase') {
-    repositories = createFirestoreRepositories();
+
+  //DONE: refactor to dict
+  let createRepositories = {
+    'postgres': createPostgresRepositories(),
+    'prisma': createPrismaRepositories(),
+    'firebase': createFirestoreRepositories()
   }
+  repositories = createRepositories[repoInput];
 
   const services = createService(repositories);
   async function createHotel(command) {
