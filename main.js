@@ -9,11 +9,12 @@ class Command {
   }
 }
 
-// const postgresClient = require("./postgres-client");
-// const prismaClient = require("./prisma-client");
 const createPostgresRepositories = require("./postgres-repositories");
 const createPrismaRepositories = require("./prisma-repositories");
 const createFirestoreRepositories = require("./firestore-repositories");
+const createPostgresClient = require("./postgres-client");
+const createPrismaClient = require("./prisma-client");
+const createFirestoreClient = require("./firestore-client");
 
 async function main() {
   const fileName = "input.txt";
@@ -21,11 +22,17 @@ async function main() {
 
   let repositories;
   const repoInput = process.argv[2];
+  const createClients = {
+    postgres: createPostgresClient(),
+    prisma: createPrismaClient(),
+    firebase: createFirestoreClient(),
+  };
+  const client = createClients[repoInput];
   //DONE: refactor to dict
-  let createRepositories = {
-    postgres: createPostgresRepositories(),
-    prisma: createPrismaRepositories(),
-    firebase: createFirestoreRepositories(),
+  const createRepositories = {
+    postgres: createPostgresRepositories(client),
+    prisma: createPrismaRepositories(client),
+    firebase: createFirestoreRepositories(client),
   };
   repositories = createRepositories[repoInput];
   const services = createService(repositories);
@@ -99,9 +106,12 @@ async function main() {
     }
     return Promise.resolve();
   }, Promise.resolve());
-  //TODO: คิดวิธี ทำไงก้ได้
-  // await prismaClient.$disconnect();
-  // await postgresClient.end();
+  //DONE: คิดวิธี ทำไงก้ได้
+  if (repoInput === "postgres") {
+    await client.end();
+  } else if (repoInput === "prisma") {
+    await client.$disconnect();
+  }
 }
 
 function getCommandsFromFileName(fileName) {

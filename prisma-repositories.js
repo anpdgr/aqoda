@@ -1,8 +1,6 @@
 const { Room, Guest } = require("./model");
-const createClient = require("./prisma-client");
 
-function createRepositories() {
-  const prismaClient = createClient();
+function createRepositories(prismaClient) {
 
   async function createKeycards(floor, roomPerFloor) {
     //set all possible keycard number DESC

@@ -1,8 +1,6 @@
 const { Room, Guest } = require("./model");
-const createClient = require("./firestore-client");
 
-function createRepositories() {
-  const firestoreClient = createClient();
+function createRepositories(firestoreClient) {
   
   async function createKeycards(floor, roomPerFloor) {
     const numberOfKeycard = floor * roomPerFloor;

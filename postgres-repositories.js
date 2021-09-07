@@ -1,9 +1,7 @@
 const { keycards, allRooms } = require("./localdb");
 const { Room, Guest } = require("./model");
-const createClient = require("./postgres-client");
 
-function createRepositories() {
-  const postgresClient = createClient();
+function createRepositories(postgresClient) {
 
   async function createKeycards(floor, roomPerFloor) {
     //set all possible keycard number DESC
