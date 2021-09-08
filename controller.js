@@ -1,31 +1,18 @@
-//TODO: refactor controller -> using reqHandler
+//DONE: refactor controller -> using reqHandler
 //DONE: show error, correct the status code
 
-const {
-  HotelIsFullError,
-  RoomIsAlreadyBookedError,
-  RoomFloorIsAlreadyBookedError,
-  GuestNotMatchKeycardNumberError,
-  CheckoutAvailableRoomError,
-  CheckoutAvailableRoomFloorError,
-} = require("./error");
 const { Guest } = require("./model");
 
 //create_hotel
-async function createHotel(req, res, next) {
-  try {
-    const hotel = await req.services.createHotel(
-      req.body.floor,
-      req.body.roomPerFloor
-    );
-    res.json({
-      message: `Hotel created with ${hotel.floor} floor(s), ${hotel.roomPerFloor} room(s) per floor.`,
-    });
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-    console.error(error);
-  }
-}
+const createHotel = requestHandler(async (req) => {
+  const hotel = await req.services.createHotel(
+    req.body.floor,
+    req.body.roomPerFloor
+  );
+  return {
+    message: `Hotel created with ${hotel.floor} floor(s), ${hotel.roomPerFloor} room(s) per floor.`,
+  };
+});
 
 //book
 const book = requestHandler(async (req) => {
@@ -39,107 +26,50 @@ const book = requestHandler(async (req) => {
 });
 
 //book_by_floor
-async function bookByFloor(req, res, next) {
-  try {
-    const roomsOnFloor = await req.services.bookByFloor(
-      req.body.floor,
-      new Guest(req.body.guestName, req.body.guestAge)
-    );
-    const rooms = roomsOnFloor.map((room) => room.roomNumber);
-    const keycardNumbers = roomsOnFloor.map((room) => room.keycardNumber);
-    res.json({
-      message: `Room ${rooms.join(
-        ", "
-      )} are booked with keycard number ${keycardNumbers.join(", ")}`,
-    });
-  } catch (error) {
-    switch (true) {
-      case error instanceof RoomFloorIsAlreadyBookedError: {
-        res.status(400).json({
-          errorMessage: `Cannot book floor ${req.body.floor} for ${req.body.guestName}.`,
-        });
-        break;
-      }
-      default:
-        throw error;
-    }
-    console.error(error);
-  }
-}
+const bookByFloor = requestHandler(async (req) => {
+  const roomsOnFloor = await req.services.bookByFloor(
+    req.body.floor,
+    new Guest(req.body.guestName, req.body.guestAge)
+  );
+  const rooms = roomsOnFloor.map((room) => room.roomNumber);
+  const keycardNumbers = roomsOnFloor.map((room) => room.keycardNumber);
+  return {
+    message: `Room ${rooms.join(
+      ", "
+    )} are booked with keycard number ${keycardNumbers.join(", ")}`,
+  };
+});
 
 //checkout
-async function checkout(req, res, next) {
-  try {
-    const updatedRoom = await req.services.checkout(
-      req.body.keycardNumber,
-      req.body.guestName
-    );
-    res.json({
-      message: `Room ${updatedRoom.roomNumber} is checkout.`,
-    });
-  } catch (error) {
-    switch (true) {
-      case error instanceof GuestNotMatchKeycardNumberError: {
-        res.status(400).json({
-          errorMessage: `Only ${error.room.guest.name} can checkout with keycard number ${req.body.keycardNumber}.`,
-        });
-        break;
-      }
-      case error instanceof CheckoutAvailableRoomError: {
-        res
-          .status(400)
-          .json({ errorMessage: "You can not checkout available room" });
-        break;
-      }
-      default:
-        throw error;
-    }
-    console.error(error);
-  }
-}
+const checkout = requestHandler(async (req) => {
+  const updatedRoom = await req.services.checkout(
+    req.body.keycardNumber,
+    req.body.guestName
+  );
+  return {
+    message: `Room ${updatedRoom.roomNumber} is checkout.`,
+  };
+});
 
 //checkout_guest_by_floor
-async function checkoutGuestByFloor(req, res, next) {
-  try {
-    const roomsOnFloor = await req.services.checkoutGuestByFloor(
-      req.body.floor
-    );
-    const roomNumbersOnFloor = roomsOnFloor
-      .map((room) => room.roomNumber)
-      .join(", ");
-    res.json({
-      message: `Room ${roomNumbersOnFloor} is checkout.`,
-    });
-  } catch (error) {
-    switch (true) {
-      case error instanceof CheckoutAvailableRoomFloorError: {
-        res.status(400).json({
-          errorMessage: `No room on floor ${req.body.floor} was booked.`,
-        });
-        break;
-      }
-      default:
-        throw error;
-    }
-    console.error(error);
-  }
-}
+const checkoutGuestByFloor = requestHandler(async (req) => {
+  const roomsOnFloor = await req.services.checkoutGuestByFloor(req.body.floor);
+  const roomNumbersOnFloor = roomsOnFloor
+    .map((room) => room.roomNumber)
+    .join(", ");
+  return { message: `Room ${roomNumbersOnFloor} is checkout.` };
+});
 
 //list_available_rooms
-async function listAvailableRooms(req, res, next) {
-  try {
-    const availableRooms = await req.services.listAvailableRooms();
-    const availableRoomNumbers = availableRooms
-      .map((availableRoom) => availableRoom.roomNumber)
-      .join(", ");
-    res.json({
-      message: availableRoomNumbers,
-    });
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-    console.error(error);
-  }
-}
+const listAvailableRooms = requestHandler(async (req) => {
+  const availableRooms = await req.services.listAvailableRooms();
+  const availableRoomNumbers = availableRooms
+    .map((availableRoom) => availableRoom.roomNumber)
+    .join(", ");
+  return {
+    message: availableRoomNumbers,
+  };
+});
 
 //list_guest
 const listGuests = requestHandler(async (req) => {
@@ -149,47 +79,32 @@ const listGuests = requestHandler(async (req) => {
 });
 
 //list_guests_by_age
-async function listGuestsNameByAge(req, res, next) {
-  try {
-    const guestsByAge = (
-      await req.services.listGuestsNameByAge(req.body.operation, req.body.age)
-    ).join(", ");
-    res.json({
-      message: guestsByAge,
-    });
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-    console.error(error);
-  }
-}
+const listGuestsNameByAge = requestHandler(async (req) => {
+  const guestsByAge = (
+    await req.services.listGuestsNameByAge(req.body.operation, req.body.age)
+  ).join(", ");
+  return {
+    message: guestsByAge,
+  };
+});
 
 //list_guests_by_floor
-async function listGuestsNameByFloor(req, res, next) {
-  try {
-    const guestsByFloor = (
-      await req.services.listGuestsNameByFloor(req.body.floor)
-    ).join(", ");
-    res.json({
-      message: guestsByFloor,
-    });
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-    console.error(error);
-  }
-}
+const listGuestsNameByFloor = requestHandler(async (req) => {
+  const guestsByFloor = (
+    await req.services.listGuestsNameByFloor(req.body.floor)
+  ).join(", ");
+  return {
+    message: guestsByFloor,
+  };
+});
 
 //get_guest_in_room
-async function getGuestsInRoom(req, res, next) {
-  try {
-    const guestInRoom = (
-      await req.services.getRoomByRoomNumber(req.query.room.toString())
-    ).guest.name;
-    res.json({ message: guestInRoom });
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-    console.error(error);
-  }
-}
+const getGuestsInRoom = requestHandler(async (req) => {
+  const guestInRoom = (
+    await req.services.getRoomByRoomNumber(req.query.room.toString())
+  ).guest.name;
+  return { message: guestInRoom };
+});
 
 function requestHandler(handler) {
   return async (req, res, next) => {

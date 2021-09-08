@@ -97,7 +97,7 @@ function createService(repository) {
     }
     //there is the room that booked with this keycard number
     if (room.guest.name != name) {
-      throw new GuestNotMatchKeycardNumberError(room);
+      throw new GuestNotMatchKeycardNumberError(room, keycardNumber);
     }
     //name match with keycardNumber
     //checkout
@@ -109,7 +109,7 @@ function createService(repository) {
 
   async function checkoutGuestByFloor(floor) {
     if (!(await hasBookedRoomOnFloor(floor))) {
-      throw new CheckoutAvailableRoomFloorError();
+      throw new CheckoutAvailableRoomFloorError(floor);
     }
     //there is some room on that floor was booked
     //checkout that room

@@ -23,24 +23,28 @@ async function main() {
   const fileName = "input.txt";
   const commands = getCommandsFromFileName(fileName);
 
-  let repositories;
   const repoInput = process.argv[2];
 
-  //TODO: create disconnect
   const createClients = {
     postgres: createPostgresClient,
     prisma: createPrismaClient,
     firebase: createFirestoreClient,
   };
-  const createCreate = createClients[repoInput];
-  const client = createCreate()
-  //DONE: refactor to dict
+  const client = createClients[repoInput]();
+
+  //FIXME: create disconnect
+  // const disconnectClients = {
+  //   postgres: await client.end,
+  //   prisma: await client.$disconnect
+  // }
+
   const createRepositories = {
     postgres: createPostgresRepositories,
     prisma: createPrismaRepositories,
     firebase: createFirestoreRepositories,
   };
-  repositories = createRepositories[repoInput](client);
+  const repositories = createRepositories[repoInput](client);
+
   const services = createService(repositories);
 
   const controller = createController(services);
@@ -112,7 +116,7 @@ async function main() {
     }
     return Promise.resolve();
   }, Promise.resolve());
-  //DONE: คิดวิธี ทำไงก้ได้
+  // disconnectClients[repoInput]();
   if (repoInput === "postgres") {
     await client.end();
   } else if (repoInput === "prisma") {
