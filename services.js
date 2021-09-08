@@ -66,7 +66,7 @@ function createService(repository) {
 
     const room = await getRoomByRoomNumber(roomNumber);
     if (!room.isAvailable) {
-      throw new RoomIsAlreadyBookedError(room);
+      throw new RoomIsAlreadyBookedError(room, guest);
     }
 
     const keycardNumber = await generateKeycard();

@@ -3,12 +3,16 @@
 const express = require("express");
 const dotenv = require("dotenv");
 dotenv.config();
+const createPrismaClient = require("./prisma-client");
 const createRepositories = require("./prisma-repositories");
 const createService = require("./services");
 const controller = require("./controller");
+const { ApplicationError } = require("./error");
 
 const app = express();
-const repositories = createRepositories();
+
+const client = createPrismaClient()
+const repositories = createRepositories(client);
 const services = createService(repositories);
 
 app.use(express.json());
@@ -51,5 +55,19 @@ app.get("/list_guests_by_floor", controller.listGuestsNameByFloor);
 
 //get_guest_in_room
 app.get("/get_guest_in_room", controller.getGuestsInRoom);
+
+app.use((error, req, res, next) => {
+  switch (true) {
+    case error instanceof ApplicationError: {
+      res.status(400).json({ errorMessage: error.message });
+      break;
+    }
+    default: {
+      res.status(500).json({ errorMessage: error.message });
+      console.error(error);
+    }
+  }
+  // res.status(400).json({ error: error.message });
+})
 
 app.listen(3333, () => console.log("Server started"));

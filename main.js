@@ -1,5 +1,8 @@
+//TODO: edit import error to be able to run server.js normally
+//TODO: if server.js success -> convert js to ts (client, repo)
+
 const fs = require("fs");
-const createApplication = require("./cli-controller");
+const createController = require("./cli-controller");
 const createService = require("./services.js");
 
 class Command {
@@ -12,7 +15,7 @@ class Command {
 const createPostgresRepositories = require("./postgres-repositories");
 const createPrismaRepositories = require("./prisma-repositories");
 const createFirestoreRepositories = require("./firestore-repositories");
-const createPostgresClient = require("./postgres-client");
+const createPostgresClient = require("./postgres-client"); // () => Client
 const createPrismaClient = require("./prisma-client");
 const createFirestoreClient = require("./firestore-client");
 
@@ -22,80 +25,83 @@ async function main() {
 
   let repositories;
   const repoInput = process.argv[2];
+
+  //TODO: create disconnect
   const createClients = {
-    postgres: createPostgresClient(),
-    prisma: createPrismaClient(),
-    firebase: createFirestoreClient(),
+    postgres: createPostgresClient,
+    prisma: createPrismaClient,
+    firebase: createFirestoreClient,
   };
-  const client = createClients[repoInput];
+  const createCreate = createClients[repoInput];
+  const client = createCreate()
   //DONE: refactor to dict
   const createRepositories = {
-    postgres: createPostgresRepositories(client),
-    prisma: createPrismaRepositories(client),
-    firebase: createFirestoreRepositories(client),
+    postgres: createPostgresRepositories,
+    prisma: createPrismaRepositories,
+    firebase: createFirestoreRepositories,
   };
-  repositories = createRepositories[repoInput];
+  repositories = createRepositories[repoInput](client);
   const services = createService(repositories);
 
-  const application = createApplication(services);
+  const controller = createController(services);
   await commands.reduce(async (initial, command) => {
     await initial;
     switch (command.name) {
       case "create_hotel": {
-        await application.createHotel(command);
+        await controller.createHotel(command);
 
         break;
       }
 
       case "book": {
-        await application.book(command);
+        await controller.book(command);
 
         break;
       }
 
       case "book_by_floor": {
-        await application.bookByFloor(command);
+        await controller.bookByFloor(command);
 
         break;
       }
 
       case "checkout": {
-        await application.checkout(command);
+        await controller.checkout(command);
 
         break;
       }
 
       case "checkout_guest_by_floor": {
-        await application.checkoutGuestByFloor(command);
+        await controller.checkoutGuestByFloor(command);
 
         break;
       }
 
       case "list_available_rooms": {
-        await application.listAvailableRooms(command);
+        await controller.listAvailableRooms(command);
 
         break;
       }
 
       case "list_guest": {
-        await application.listGuests(command);
+        await controller.listGuests(command);
 
         break;
       }
 
       case "list_guest_by_age": {
-        await application.listGuestsByAge(command);
+        await controller.listGuestsByAge(command);
 
         break;
       }
 
       case "list_guest_by_floor": {
-        await application.listGuestsByFloor(command);
+        await controller.listGuestsByFloor(command);
         break;
       }
 
       case "get_guest_in_room": {
-        await application.getGuestsInRoom(command);
+        await controller.getGuestsInRoom(command);
         break;
       }
 

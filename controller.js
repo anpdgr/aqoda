@@ -1,3 +1,4 @@
+//TODO: refactor controller -> using reqHandler
 //DONE: show error, correct the status code
 
 const {
@@ -27,36 +28,15 @@ async function createHotel(req, res, next) {
 }
 
 //book
-async function book(req, res, next) {
-  try {
-    const keycardNumber = await req.services.book(
-      req.body.roomNumber,
-      new Guest(req.body.guestName, req.body.guestAge)
-    );
-    res.json({
-      message: `Room ${req.body.roomNumber} is booked by ${req.body.guestName} with keycard number ${keycardNumber}.`,
-    });
-  } catch (error) {
-    switch (true) {
-      case error instanceof HotelIsFullError: {
-        res.status(400).json({ errorMessage: "Hotel is fully booked." });
-        break;
-      }
-      case error instanceof RoomIsAlreadyBookedError: {
-        res
-          .status(400)
-          .json({
-            errorMessage: `Cannot book room ${error.room.roomNumber} for ${req.body.guestName}, The room is currently booked by ${error.room.guest.name}.`,
-          });
-        break;
-      }
-      default:
-        throw error;
-    }
-    // res.status(400).json({ error: error.message });
-    console.error(error);
-  }
-}
+const book = requestHandler(async (req) => {
+  const keycardNumber = await req.services.book(
+    req.body.roomNumber,
+    new Guest(req.body.guestName, req.body.guestAge)
+  );
+  return {
+    message: `Room ${req.body.roomNumber} is booked by ${req.body.guestName} with keycard number ${keycardNumber}.`,
+  };
+});
 
 //book_by_floor
 async function bookByFloor(req, res, next) {
@@ -75,11 +55,9 @@ async function bookByFloor(req, res, next) {
   } catch (error) {
     switch (true) {
       case error instanceof RoomFloorIsAlreadyBookedError: {
-        res
-          .status(400)
-          .json({
-            errorMessage: `Cannot book floor ${req.body.floor} for ${req.body.guestName}.`,
-          });
+        res.status(400).json({
+          errorMessage: `Cannot book floor ${req.body.floor} for ${req.body.guestName}.`,
+        });
         break;
       }
       default:
@@ -102,11 +80,9 @@ async function checkout(req, res, next) {
   } catch (error) {
     switch (true) {
       case error instanceof GuestNotMatchKeycardNumberError: {
-        res
-          .status(400)
-          .json({
-            errorMessage: `Only ${error.room.guest.name} can checkout with keycard number ${req.body.keycardNumber}.`,
-          });
+        res.status(400).json({
+          errorMessage: `Only ${error.room.guest.name} can checkout with keycard number ${req.body.keycardNumber}.`,
+        });
         break;
       }
       case error instanceof CheckoutAvailableRoomError: {
@@ -137,11 +113,9 @@ async function checkoutGuestByFloor(req, res, next) {
   } catch (error) {
     switch (true) {
       case error instanceof CheckoutAvailableRoomFloorError: {
-        res
-          .status(400)
-          .json({
-            errorMessage: `No room on floor ${req.body.floor} was booked.`,
-          });
+        res.status(400).json({
+          errorMessage: `No room on floor ${req.body.floor} was booked.`,
+        });
         break;
       }
       default:
@@ -168,18 +142,11 @@ async function listAvailableRooms(req, res, next) {
 }
 
 //list_guest
-async function listGuests(req, res, next) {
-  try {
-    const guests = await req.services.listGuests();
-    const guestNames = guests.map((guest) => guest.name).join(", ");
-    res.json({
-      message: guestNames,
-    });
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-    console.error(error);
-  }
-}
+const listGuests = requestHandler(async (req) => {
+  const guests = await req.services.listGuests();
+  const guestNames = guests.map((guest) => guest.name).join(", ");
+  return { message: guestNames };
+});
 
 //list_guests_by_age
 async function listGuestsNameByAge(req, res, next) {
@@ -222,6 +189,17 @@ async function getGuestsInRoom(req, res, next) {
     res.status(500).json({ error: error.message });
     console.error(error);
   }
+}
+
+function requestHandler(handler) {
+  return async (req, res, next) => {
+    try {
+      const result = await handler(req);
+      res.json(result);
+    } catch (error) {
+      next(error);
+    }
+  };
 }
 
 module.exports = {

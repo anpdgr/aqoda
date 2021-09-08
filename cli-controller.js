@@ -5,7 +5,7 @@ const {
   GuestNotMatchKeycardNumberError,
   CheckoutAvailableRoomError,
   CheckoutAvailableRoomFloorError,
-} = require("./error");
+} = require("./src/error");
 const { Guest } = require("./model");
 
 function createApplication(services) {
