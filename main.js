@@ -1,4 +1,4 @@
-//TODO: edit import error to be able to run server.js normally
+//DONE: edit import error to be able to run server.js normally
 //TODO: if server.js success -> convert js to ts (client, repo)
 
 const fs = require("fs");
@@ -34,9 +34,11 @@ async function main() {
 
   //DONE: create disconnect
   const disconnectClients = {
-    postgres: async (client) => await client.end,
-    prisma: async (client) => await client.$disconnect,
+    postgres: client.end?.bind(client),
+    prisma: client.$disconnect?.bind(client),
   };
+
+  const disconnect = disconnectClients[repoInput];
 
   const createRepositories = {
     postgres: createPostgresRepositories,
@@ -116,12 +118,7 @@ async function main() {
     }
     return Promise.resolve();
   }, Promise.resolve());
-  disconnectClients[repoInput](client);
-  if (repoInput === "postgres") {
-    await client.end();
-  } else if (repoInput === "prisma") {
-    await client.$disconnect();
-  }
+  await disconnect?.();
 }
 
 function getCommandsFromFileName(fileName) {
