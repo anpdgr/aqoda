@@ -1,5 +1,4 @@
 //DONE: refactor controller -> using reqHandler
-//DONE: show error, correct the status code
 
 const { Guest } = require("./model");
 

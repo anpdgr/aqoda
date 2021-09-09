@@ -32,11 +32,11 @@ async function main() {
   };
   const client = createClients[repoInput]();
 
-  //FIXME: create disconnect
-  // const disconnectClients = {
-  //   postgres: await client.end,
-  //   prisma: await client.$disconnect
-  // }
+  //DONE: create disconnect
+  const disconnectClients = {
+    postgres: async (client) => await client.end,
+    prisma: async (client) => await client.$disconnect,
+  };
 
   const createRepositories = {
     postgres: createPostgresRepositories,
@@ -116,7 +116,7 @@ async function main() {
     }
     return Promise.resolve();
   }, Promise.resolve());
-  // disconnectClients[repoInput]();
+  disconnectClients[repoInput](client);
   if (repoInput === "postgres") {
     await client.end();
   } else if (repoInput === "prisma") {
@@ -141,7 +141,5 @@ function getCommandsFromFileName(fileName) {
         )
     );
 }
-
-//DONE: createApp -> createController, move file, รับ services from main
 
 main();
