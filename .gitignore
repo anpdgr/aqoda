@@ -3,3 +3,4 @@ db
 # Keep environment variables out of version control
 .env
 aqoda-bbb86-firebase-adminsdk-kwxom-d24412eda3.json
+dist
