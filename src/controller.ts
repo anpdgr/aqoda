@@ -1,6 +1,8 @@
 //DONE: refactor controller -> using reqHandler
 
-const { Guest } = require("./model");
+import { Guest } from "./model";
+import { RequestHandler, Request } from "express";
+import { Result } from "range-parser";
 
 //create_hotel
 const createHotel = requestHandler(async (req) => {
@@ -73,7 +75,7 @@ const listAvailableRooms = requestHandler(async (req) => {
 //list_guest
 const listGuests = requestHandler(async (req) => {
   const guests = await req.services.listGuests();
-  const guestNames = guests.map((guest) => guest.name).join(", ");
+  const guestNames = guests.map((guest) => guest!.name).join(", ");
   return { message: guestNames };
 });
 
@@ -99,24 +101,28 @@ const listGuestsNameByFloor = requestHandler(async (req) => {
 
 //get_guest_in_room
 const getGuestsInRoom = requestHandler(async (req) => {
+  if (typeof req.query.room !== 'string') {
+    return { message: 'Invalid input' };
+  }
   const guestInRoom = (
-    await req.services.getRoomByRoomNumber(req.query.room.toString())
-  ).guest.name;
+    await req.services.getRoomByRoomNumber(req.query.room)
+  )!.guest!.name;
   return { message: guestInRoom };
 });
 
-function requestHandler(handler) {
-  return async (req, res, next) => {
+function requestHandler<Result extends {message: string}>(handler: (request: Request) => Promise<Result>) {
+  const expressHandler: RequestHandler = async (req, res, next) => {
     try {
       const result = await handler(req);
       res.json(result);
     } catch (error) {
       next(error);
     }
-  };
+  }
+  return expressHandler
 }
 
-module.exports = {
+export const controller = {
   createHotel,
   book,
   bookByFloor,

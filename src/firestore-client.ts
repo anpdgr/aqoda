@@ -1,9 +1,6 @@
-const admin = require('firebase-admin');
+import admin from 'firebase-admin';
 admin.initializeApp();
 
-//FIXME: return type
-function createClient() {
+export default function createClient(): FirebaseFirestore.Firestore {
   return admin.firestore()
 }
-
-module.exports = createClient

@@ -1,7 +1,7 @@
-const { Pool } = require('pg')
+import { Pool } from 'pg';
 // pools will use environment variables
 // for connection information
-function createPostgresClient(): any {
+export default function createPostgresClient(): Pool {
   return new Pool({
     user: 'postgres',
     host: 'localhost',
@@ -10,5 +10,3 @@ function createPostgresClient(): any {
     port: 5432,
   })
 }
-
-module.exports = createPostgresClient;

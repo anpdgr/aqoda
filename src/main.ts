@@ -1,31 +1,53 @@
 //DONE: edit import error to be able to run server.js normally
-//TODO: if server.js success -> convert js to ts (client, repo)
+//DONE: if server.js success -> convert js to ts (client, repo)
 
-const fs = require("fs");
-const createController = require("./cli-controller");
-const createService = require("./services.js");
+import fs from "fs";
+
+import createController from "./cli-controller";
+import createService from "./services.js";
+import createPostgresRepositories from "./postgres-repositories";
+import createPrismaRepositories from "./prisma-repositories";
+import createFirestoreRepositories from "./firestore-repositories";
+import createPostgresClient from "./postgres-client"; // () => Client
+import createPrismaClient from "./prisma-client";
+import createFirestoreClient from "./firestore-client";
 
 class Command {
-  constructor(name, params) {
-    this.name = name;
-    this.params = params;
-  }
+  constructor(public name: string, public params: any) {}
 }
 
-const createPostgresRepositories = require("./postgres-repositories");
-const createPrismaRepositories = require("./prisma-repositories");
-const createFirestoreRepositories = require("./firestore-repositories");
-const createPostgresClient = require("./postgres-client"); // () => Client
-const createPrismaClient = require("./prisma-client");
-const createFirestoreClient = require("./firestore-client");
+// type createObjects = Partial<Record<"postgres" | "prisma" | "firebase", any>>
+// {
+//   [key: string]: any,
+//   postgres: object,
+//   prisma: object,
+//   firebase?: object
+// }
 
-async function main() {
-  const fileName = "input.txt";
-  const commands = getCommandsFromFileName(fileName);
+// type a = Record<"postgres" | "prisma" | "firebase", object>
 
-  const repoInput = process.argv[2];
+// interface createObjects {
+//   [key: string]: any,
+//   postgres: any,
+//   prisma: any,
+//   firebase?: any
+// }
 
-  const createClients = {
+type createObjects = {
+  [key: string]: any,
+  postgres: object,
+  prisma: object,
+  firebase?: object
+}
+
+
+async function main(): Promise<void> {
+  const fileName: string = "/Users/ananyap/Documents/Calcal/aqoda/src/input.txt";
+  const commands: Command[] = getCommandsFromFileName(fileName);
+
+  const repoInput: string = process.argv[2];
+
+  const createClients: createObjects = {
     postgres: createPostgresClient,
     prisma: createPrismaClient,
     firebase: createFirestoreClient,
@@ -33,14 +55,13 @@ async function main() {
   const client = createClients[repoInput]();
 
   //DONE: create disconnect
-  const disconnectClients = {
+  const disconnectClients: createObjects = {
     postgres: client.end?.bind(client),
     prisma: client.$disconnect?.bind(client),
-  };
-
+  } as const; 
   const disconnect = disconnectClients[repoInput];
 
-  const createRepositories = {
+  const createRepositories: createObjects = {
     postgres: createPostgresRepositories,
     prisma: createPrismaRepositories,
     firebase: createFirestoreRepositories,
@@ -50,7 +71,8 @@ async function main() {
   const services = createService(repositories);
 
   const controller = createController(services);
-  await commands.reduce(async (initial, command) => {
+
+  await commands.reduce(async (initial: Promise<void>, command: Command) => {
     await initial;
     switch (command.name) {
       case "create_hotel": {
@@ -121,7 +143,7 @@ async function main() {
   await disconnect?.();
 }
 
-function getCommandsFromFileName(fileName) {
+function getCommandsFromFileName(fileName: string): Command[] {
   const file = fs.readFileSync(fileName, "utf-8");
   return file
     .split("\n")
