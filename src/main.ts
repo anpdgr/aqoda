@@ -16,30 +16,12 @@ class Command {
   constructor(public name: string, public params: any) {}
 }
 
-// type createObjects = Partial<Record<"postgres" | "prisma" | "firebase", any>>
-// {
-//   [key: string]: any,
-//   postgres: object,
-//   prisma: object,
-//   firebase?: object
-// }
-
-// type a = Record<"postgres" | "prisma" | "firebase", object>
-
-// interface createObjects {
-//   [key: string]: any,
-//   postgres: any,
-//   prisma: any,
-//   firebase?: any
-// }
-
 type createObjects = {
   [key: string]: any,
   postgres: object,
   prisma: object,
   firebase?: object
 }
-
 
 async function main(): Promise<void> {
   const fileName: string = "/Users/ananyap/Documents/Calcal/aqoda/src/input.txt";

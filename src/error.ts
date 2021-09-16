@@ -1,6 +1,6 @@
 import { Guest, Room } from "./model";
 
-export class ApplicationError extends Error {}
+export class ApplicationError extends Error {code = "400";}
 
 export class HotelIsFullError extends ApplicationError {
   message = "Hotel is fully booked.";

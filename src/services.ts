@@ -77,7 +77,7 @@ function createService(repository: Repository) {
       return Promise.resolve();
     }, Promise.resolve());
 
-    return listBookedRoomsByFloor(floor);
+    return await listBookedRoomsByFloor(floor);
   }
 
   async function checkout(keycardNumber: number, name: string): Promise<Room> {
@@ -110,7 +110,7 @@ function createService(repository: Repository) {
   }
 
   async function listGuests() {
-    return (await repository.listBookedRoom()).map((room) => room.guest);
+    return (await repository.listBookedRoom()).map((room) => room.guest)
   }
 
   async function listGuestsNameByFloor(floor: number) {
