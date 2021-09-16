@@ -110,7 +110,7 @@ function createService(repository: Repository) {
   }
 
   async function listGuests() {
-    return (await repository.listBookedRoom()).map((room) => room.guest)
+    return (await repository.listBookedRoom()).map((room) => room.guest!)
   }
 
   async function listGuestsNameByFloor(floor: number) {
@@ -154,3 +154,5 @@ function createService(repository: Repository) {
 }
 
 export default createService;
+
+export type Services = ReturnType<typeof createService>
