@@ -75,3 +75,5 @@ export default gql`
     checkoutRoomsByFloor(input: CheckoutRoomsByFloorInput!): MutationResult!
   }
 `;
+
+

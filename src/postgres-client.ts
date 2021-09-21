@@ -3,10 +3,6 @@ import { Pool } from 'pg';
 // for connection information
 export default function createPostgresClient(): Pool {
   return new Pool({
-    user: 'postgres',
-    host: 'localhost',
-    database: 'aqoda',
-    password: 'password',
-    port: 5432,
+    connectionString: process.env.DATABASE_URL
   })
 }

@@ -1,8 +1,8 @@
 import express, { ErrorRequestHandler } from "express";
 import dotenv from "dotenv";
 dotenv.config();
-import createPrismaClient from "./prisma-client";
-import createRepositories from "./prisma-repositories";
+import createPrismaClient from "./postgres-client";
+import createRepositories from "./postgres-repositories";
 import createService from "./services";
 import { controller } from "./controller";
 import { ApplicationError } from "./error";
@@ -70,4 +70,4 @@ const errorHandler: ErrorRequestHandler = (error, req, res, next) => {
 
 app.use(errorHandler);
 
-app.listen(3333, () => console.log("Server started"));
+app.listen(process.env.PORT, () => console.log("Server started"));
