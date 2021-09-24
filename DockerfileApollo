@@ -1,0 +1,29 @@
+FROM node:14 AS builder1
+
+WORKDIR /app
+
+COPY ["package.json", "package-lock.json*", "./"]
+
+RUN npm install
+
+COPY . .
+
+RUN npx graphql-codegen --config codegen.yml
+
+RUN npm run build
+
+RUN npm install --production
+
+FROM node:14
+
+WORKDIR /app
+
+COPY --from=builder1 /app/node_modules ./node_modules
+
+COPY ["package.json", "package-lock.json*", "./"]
+
+COPY --from=builder1 /app/dist ./dist
+
+COPY --from=builder1 /app/src/schema.graphql ./dist/schema.graphql
+
+CMD [ "node", "./dist/apollo.js" ]

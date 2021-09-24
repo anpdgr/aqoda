@@ -1,0 +1,62 @@
+[debug] [2021-09-23T10:26:15.076Z] ----------------------------------------------------------------------
+[debug] [2021-09-23T10:26:15.077Z] Command:       /Users/ananyap/.local/share/nvm/v14.17.6/bin/node /Users/ananyap/.local/share/nvm/v14.17.6/bin/firebase deploy --only functions
+[debug] [2021-09-23T10:26:15.078Z] CLI Version:   9.18.0
+[debug] [2021-09-23T10:26:15.078Z] Platform:      darwin
+[debug] [2021-09-23T10:26:15.078Z] Node Version:  v14.17.6
+[debug] [2021-09-23T10:26:15.084Z] Time:          Thu Sep 23 2021 17:26:15 GMT+0700 (Indochina Time)
+[debug] [2021-09-23T10:26:15.084Z] ----------------------------------------------------------------------
+[debug] 
+[debug] [2021-09-23T10:26:15.144Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform"]
+[debug] [2021-09-23T10:26:15.150Z] > authorizing via signed-in user (antmldpks@gmail.com)
+[debug] [2021-09-23T10:26:15.150Z] [iam] checking project aqoda-bbb86 for permissions ["cloudfunctions.functions.create","cloudfunctions.functions.delete","cloudfunctions.functions.get","cloudfunctions.functions.list","cloudfunctions.functions.update","cloudfunctions.operations.get","firebase.projects.get"]
+[debug] [2021-09-23T10:26:15.154Z] >>> HTTP REQUEST POST https://cloudresourcemanager.googleapis.com/v1/projects/aqoda-bbb86:testIamPermissions  
+ {"permissions":["cloudfunctions.functions.create","cloudfunctions.functions.delete","cloudfunctions.functions.get","cloudfunctions.functions.list","cloudfunctions.functions.update","cloudfunctions.operations.get","firebase.projects.get"]}
+[debug] [2021-09-23T10:26:16.374Z] <<< HTTP RESPONSE 200 {"content-type":"application/json; charset=UTF-8","vary":"X-Origin, Referer, Origin,Accept-Encoding","date":"Thu, 23 Sep 2021 10:26:16 GMT","server":"ESF","cache-control":"private","x-xss-protection":"0","x-frame-options":"SAMEORIGIN","x-content-type-options":"nosniff","server-timing":"gfet4t7; dur=1005","alt-svc":"h3=\":443\"; ma=2592000,h3-29=\":443\"; ma=2592000,h3-T051=\":443\"; ma=2592000,h3-Q050=\":443\"; ma=2592000,h3-Q046=\":443\"; ma=2592000,h3-Q043=\":443\"; ma=2592000,quic=\":443\"; ma=2592000; v=\"46,43\"","accept-ranges":"none","transfer-encoding":"chunked"}
+[debug] [2021-09-23T10:26:16.376Z] >>> HTTP REQUEST POST https://iam.googleapis.com/v1/projects/aqoda-bbb86/serviceAccounts/aqoda-bbb86@appspot.gserviceaccount.com:testIamPermissions  
+ {"permissions":["iam.serviceAccounts.actAs"]}
+[debug] [2021-09-23T10:26:17.618Z] <<< HTTP RESPONSE 200 {"content-type":"application/json; charset=UTF-8","vary":"X-Origin, Referer, Origin,Accept-Encoding","date":"Thu, 23 Sep 2021 10:26:17 GMT","server":"ESF","cache-control":"private","x-xss-protection":"0","x-frame-options":"SAMEORIGIN","x-content-type-options":"nosniff","alt-svc":"h3=\":443\"; ma=2592000,h3-29=\":443\"; ma=2592000,h3-T051=\":443\"; ma=2592000,h3-Q050=\":443\"; ma=2592000,h3-Q046=\":443\"; ma=2592000,h3-Q043=\":443\"; ma=2592000,quic=\":443\"; ma=2592000; v=\"46,43\"","accept-ranges":"none","transfer-encoding":"chunked"}
+[info] 
+[info] === Deploying to 'aqoda-bbb86'...
+[info] 
+[info] i  deploying functions 
+[debug] [2021-09-23T10:26:17.762Z] TypeError [ERR_INVALID_ARG_TYPE]: The "path" argument must be of type string. Received undefined
+    at validateString (internal/validators.js:124:11)
+    at Object.join (path.js:1148:7)
+    at Config.path (/Users/ananyap/.local/share/nvm/v14.17.6/lib/node_modules/firebase-tools/lib/config.js:115:45)
+    at getChildEnvironment (/Users/ananyap/.local/share/nvm/v14.17.6/lib/node_modules/firebase-tools/lib/deploy/lifecycleHooks.js:50:49)
+    at runTargetCommands (/Users/ananyap/.local/share/nvm/v14.17.6/lib/node_modules/firebase-tools/lib/deploy/lifecycleHooks.js:71:14)
+    at /Users/ananyap/.local/share/nvm/v14.17.6/lib/node_modules/firebase-tools/lib/deploy/lifecycleHooks.js:122:24
+    at processTicksAndRejections (internal/process/task_queues.js:95:5)
+[error] 
+[error] Error: An unexpected error has occurred.
+[debug] [2021-09-23T10:26:33.967Z] ----------------------------------------------------------------------
+[debug] [2021-09-23T10:26:33.969Z] Command:       /Users/ananyap/.local/share/nvm/v14.17.6/bin/node /Users/ananyap/.local/share/nvm/v14.17.6/bin/firebase deploy --only functions --debug
+[debug] [2021-09-23T10:26:33.969Z] CLI Version:   9.18.0
+[debug] [2021-09-23T10:26:33.970Z] Platform:      darwin
+[debug] [2021-09-23T10:26:33.970Z] Node Version:  v14.17.6
+[debug] [2021-09-23T10:26:33.971Z] Time:          Thu Sep 23 2021 17:26:33 GMT+0700 (Indochina Time)
+[debug] [2021-09-23T10:26:33.971Z] ----------------------------------------------------------------------
+[debug] 
+[debug] [2021-09-23T10:26:34.021Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform"]
+[debug] [2021-09-23T10:26:34.022Z] > authorizing via signed-in user (antmldpks@gmail.com)
+[debug] [2021-09-23T10:26:34.022Z] [iam] checking project aqoda-bbb86 for permissions ["cloudfunctions.functions.create","cloudfunctions.functions.delete","cloudfunctions.functions.get","cloudfunctions.functions.list","cloudfunctions.functions.update","cloudfunctions.operations.get","firebase.projects.get"]
+[debug] [2021-09-23T10:26:34.025Z] >>> HTTP REQUEST POST https://cloudresourcemanager.googleapis.com/v1/projects/aqoda-bbb86:testIamPermissions  
+ {"permissions":["cloudfunctions.functions.create","cloudfunctions.functions.delete","cloudfunctions.functions.get","cloudfunctions.functions.list","cloudfunctions.functions.update","cloudfunctions.operations.get","firebase.projects.get"]}
+[debug] [2021-09-23T10:26:35.234Z] <<< HTTP RESPONSE 200 {"content-type":"application/json; charset=UTF-8","vary":"X-Origin, Referer, Origin,Accept-Encoding","date":"Thu, 23 Sep 2021 10:26:35 GMT","server":"ESF","cache-control":"private","x-xss-protection":"0","x-frame-options":"SAMEORIGIN","x-content-type-options":"nosniff","server-timing":"gfet4t7; dur=1043","alt-svc":"h3=\":443\"; ma=2592000,h3-29=\":443\"; ma=2592000,h3-T051=\":443\"; ma=2592000,h3-Q050=\":443\"; ma=2592000,h3-Q046=\":443\"; ma=2592000,h3-Q043=\":443\"; ma=2592000,quic=\":443\"; ma=2592000; v=\"46,43\"","accept-ranges":"none","transfer-encoding":"chunked"}
+[debug] [2021-09-23T10:26:35.237Z] >>> HTTP REQUEST POST https://iam.googleapis.com/v1/projects/aqoda-bbb86/serviceAccounts/aqoda-bbb86@appspot.gserviceaccount.com:testIamPermissions  
+ {"permissions":["iam.serviceAccounts.actAs"]}
+[debug] [2021-09-23T10:26:36.370Z] <<< HTTP RESPONSE 200 {"content-type":"application/json; charset=UTF-8","vary":"X-Origin, Referer, Origin,Accept-Encoding","date":"Thu, 23 Sep 2021 10:26:36 GMT","server":"ESF","cache-control":"private","x-xss-protection":"0","x-frame-options":"SAMEORIGIN","x-content-type-options":"nosniff","alt-svc":"h3=\":443\"; ma=2592000,h3-29=\":443\"; ma=2592000,h3-T051=\":443\"; ma=2592000,h3-Q050=\":443\"; ma=2592000,h3-Q046=\":443\"; ma=2592000,h3-Q043=\":443\"; ma=2592000,quic=\":443\"; ma=2592000; v=\"46,43\"","accept-ranges":"none","transfer-encoding":"chunked"}
+[info] 
+[info] === Deploying to 'aqoda-bbb86'...
+[info] 
+[info] i  deploying functions 
+[debug] [2021-09-23T10:26:36.503Z] TypeError [ERR_INVALID_ARG_TYPE]: The "path" argument must be of type string. Received undefined
+    at validateString (internal/validators.js:124:11)
+    at Object.join (path.js:1148:7)
+    at Config.path (/Users/ananyap/.local/share/nvm/v14.17.6/lib/node_modules/firebase-tools/lib/config.js:115:45)
+    at getChildEnvironment (/Users/ananyap/.local/share/nvm/v14.17.6/lib/node_modules/firebase-tools/lib/deploy/lifecycleHooks.js:50:49)
+    at runTargetCommands (/Users/ananyap/.local/share/nvm/v14.17.6/lib/node_modules/firebase-tools/lib/deploy/lifecycleHooks.js:71:14)
+    at /Users/ananyap/.local/share/nvm/v14.17.6/lib/node_modules/firebase-tools/lib/deploy/lifecycleHooks.js:122:24
+    at processTicksAndRejections (internal/process/task_queues.js:95:5)
+[error] 
+[error] Error: An unexpected error has occurred.

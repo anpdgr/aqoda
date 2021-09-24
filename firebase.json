@@ -1,0 +1,7 @@
+{
+  "functions": {
+    "predeploy": "cp src/schema.graphql dist/schema.graphql && npx graphql-codegen --config codegen.yml && npm --prefix \"$RESOURCE_DIR\" run build",
+    "source": ".",
+    "runtime": "nodejs14"
+  }
+}

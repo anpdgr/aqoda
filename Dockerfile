@@ -23,3 +23,5 @@ COPY ["package.json", "package-lock.json*", "./"]
 COPY --from=builder /app/dist ./dist
 
 CMD [ "node", "./dist/server.js" ]
+
+
